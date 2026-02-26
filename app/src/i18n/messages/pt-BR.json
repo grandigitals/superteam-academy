@@ -1,0 +1,149 @@
+{
+  "nav": {
+    "courses": "Cursos",
+    "dashboard": "Painel",
+    "leaderboard": "Ranking",
+    "profile": "Perfil",
+    "settings": "Configurações",
+    "connect": "Conectar Carteira",
+    "disconnect": "Desconectar"
+  },
+  "landing": {
+    "hero": {
+      "title": "Construa na Solana.",
+      "subtitle": "Aprenda. Crie. Ganhe credenciais on-chain.",
+      "cta": "Comece a Aprender Grátis",
+      "stats": {
+        "courses": "Cursos",
+        "learners": "Aprendizes",
+        "credentials": "Credenciais Emitidas"
+      }
+    },
+    "features": {
+      "editor": {
+        "title": "Editor de Código Interativo",
+        "description": "Escreva e execute programas Solana diretamente no seu navegador com feedback em tempo real."
+      },
+      "credentials": {
+        "title": "Credenciais On-Chain",
+        "description": "Ganhe certificados NFT soulbound armazenados permanentemente na Solana Devnet."
+      },
+      "multilang": {
+        "title": "Multi-Idioma",
+        "description": "Aprenda em inglês, português ou espanhol — conteúdo no seu idioma nativo."
+      },
+      "gamification": {
+        "title": "Aprendizado Gamificado",
+        "description": "Ganhe XP, suba de nível e mantenha streaks enquanto avança nos cursos."
+      }
+    },
+    "cta": {
+      "title": "Pronto para Construir na Solana?",
+      "subtitle": "Junte-se a milhares de desenvolvedores aprendendo o blockchain mais rápido.",
+      "button": "Comece a Aprender Grátis"
+    }
+  },
+  "course": {
+    "enroll": "Inscrever-se Agora",
+    "continue": "Continuar Aprendendo",
+    "startCourse": "Iniciar Curso",
+    "enrolled": "Inscrito",
+    "difficulty": {
+      "beginner": "Iniciante",
+      "intermediate": "Intermediário",
+      "advanced": "Avançado"
+    },
+    "duration": "{minutes} min",
+    "lessons": "{count} aulas",
+    "xpReward": "Recompensa de {xp} XP",
+    "noResults": "Nenhum curso encontrado",
+    "search": "Pesquisar cursos..."
+  },
+  "lesson": {
+    "complete": "Marcar como Concluído",
+    "completed": "Concluído",
+    "next": "Próxima Aula",
+    "previous": "Aula Anterior",
+    "hints": "Mostrar Dicas",
+    "challenge": "Desafio de Código",
+    "runTests": "Executar Testes",
+    "allTestsPassed": "Todos os testes passaram!",
+    "testsFailed": "{count} teste(s) falharam"
+  },
+  "gamification": {
+    "xp": "{xp} XP",
+    "level": "Nível {level}",
+    "streak": "Sequência de {count} dias",
+    "levelUp": "Subiu de Nível! Você agora é Nível {level}",
+    "achievements": "Conquistas",
+    "noAchievements": "Complete cursos para ganhar conquistas",
+    "xpEarned": "+{xp} XP ganhos!"
+  },
+  "wallet": {
+    "connect": "Conectar Carteira",
+    "disconnect": "Desconectar",
+    "connecting": "Conectando...",
+    "required": "Carteira necessária para esta ação",
+    "connected": "Conectado"
+  },
+  "dashboard": {
+    "title": "Painel",
+    "activeCourses": "Cursos Ativos",
+    "recentAchievements": "Conquistas Recentes",
+    "activityFeed": "Atividade Recente",
+    "recommendedCourses": "Recomendado Para Você",
+    "noCourses": "Nenhum curso inscrito ainda",
+    "continueLearning": "Continuar Aprendendo"
+  },
+  "profile": {
+    "title": "Perfil",
+    "editProfile": "Editar Perfil",
+    "skills": "Habilidades",
+    "credentials": "Credenciais",
+    "courses": "Cursos Concluídos",
+    "joinedAt": "Entrou em {date}",
+    "publicProfile": "Perfil Público",
+    "privateProfile": "Perfil Privado"
+  },
+  "leaderboard": {
+    "title": "Ranking",
+    "weekly": "Esta Semana",
+    "monthly": "Este Mês",
+    "allTime": "Todos os Tempos",
+    "rank": "Posição",
+    "player": "Jogador",
+    "xp": "XP",
+    "level": "Nível",
+    "streak": "Sequência"
+  },
+  "settings": {
+    "title": "Configurações",
+    "profile": "Perfil",
+    "language": "Idioma",
+    "theme": "Tema",
+    "notifications": "Notificações",
+    "privacy": "Privacidade",
+    "connectedWallets": "Carteiras Conectadas",
+    "saveChanges": "Salvar Alterações",
+    "saved": "Salvo!"
+  },
+  "certificate": {
+    "title": "Certificado de Conclusão",
+    "completedOn": "Concluído em {date}",
+    "verifyOnChain": "Verificar On-Chain",
+    "download": "Baixar Certificado",
+    "share": "Compartilhar Certificado",
+    "nftDetails": "Detalhes do NFT",
+    "mintAddress": "Endereço de Cunhagem"
+  },
+  "common": {
+    "loading": "Carregando...",
+    "error": "Algo deu errado",
+    "retry": "Tentar Novamente",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "close": "Fechar",
+    "viewAll": "Ver Tudo",
+    "comingSoon": "Em Breve"
+  }
+}

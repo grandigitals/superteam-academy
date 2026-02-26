@@ -1,0 +1,149 @@
+{
+  "nav": {
+    "courses": "Courses",
+    "dashboard": "Dashboard",
+    "leaderboard": "Leaderboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "connect": "Connect Wallet",
+    "disconnect": "Disconnect"
+  },
+  "landing": {
+    "hero": {
+      "title": "Build on Solana.",
+      "subtitle": "Learn. Ship. Earn on-chain credentials.",
+      "cta": "Start Learning Free",
+      "stats": {
+        "courses": "Courses",
+        "learners": "Learners",
+        "credentials": "Credentials Issued"
+      }
+    },
+    "features": {
+      "editor": {
+        "title": "Interactive Code Editor",
+        "description": "Write and run Solana programs directly in your browser with real-time feedback."
+      },
+      "credentials": {
+        "title": "On-Chain Credentials",
+        "description": "Earn soulbound NFT certificates stored permanently on Solana Devnet."
+      },
+      "multilang": {
+        "title": "Multi-Language",
+        "description": "Learn in English, Portuguese, or Spanish — content in your native language."
+      },
+      "gamification": {
+        "title": "Gamified Learning",
+        "description": "Earn XP, level up, and maintain streaks as you progress through courses."
+      }
+    },
+    "cta": {
+      "title": "Ready to Build on Solana?",
+      "subtitle": "Join thousands of developers learning the fastest blockchain.",
+      "button": "Start Learning Free"
+    }
+  },
+  "course": {
+    "enroll": "Enroll Now",
+    "continue": "Continue Learning",
+    "startCourse": "Start Course",
+    "enrolled": "Enrolled",
+    "difficulty": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "duration": "{minutes} min",
+    "lessons": "{count} lessons",
+    "xpReward": "{xp} XP reward",
+    "noResults": "No courses found",
+    "search": "Search courses..."
+  },
+  "lesson": {
+    "complete": "Mark Complete",
+    "completed": "Completed",
+    "next": "Next Lesson",
+    "previous": "Previous Lesson",
+    "hints": "Show Hints",
+    "challenge": "Code Challenge",
+    "runTests": "Run Tests",
+    "allTestsPassed": "All tests passed!",
+    "testsFailed": "{count} test(s) failed"
+  },
+  "gamification": {
+    "xp": "{xp} XP",
+    "level": "Level {level}",
+    "streak": "{count} day streak",
+    "levelUp": "Level Up! You're now Level {level}",
+    "achievements": "Achievements",
+    "noAchievements": "Complete courses to earn achievements",
+    "xpEarned": "+{xp} XP earned!"
+  },
+  "wallet": {
+    "connect": "Connect Wallet",
+    "disconnect": "Disconnect",
+    "connecting": "Connecting...",
+    "required": "Wallet required for this action",
+    "connected": "Connected"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "activeCourses": "Active Courses",
+    "recentAchievements": "Recent Achievements",
+    "activityFeed": "Recent Activity",
+    "recommendedCourses": "Recommended For You",
+    "noCourses": "No courses enrolled yet",
+    "continueLearning": "Continue Learning"
+  },
+  "profile": {
+    "title": "Profile",
+    "editProfile": "Edit Profile",
+    "skills": "Skills",
+    "credentials": "Credentials",
+    "courses": "Completed Courses",
+    "joinedAt": "Joined {date}",
+    "publicProfile": "Public Profile",
+    "privateProfile": "Private Profile"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "weekly": "This Week",
+    "monthly": "This Month",
+    "allTime": "All Time",
+    "rank": "Rank",
+    "player": "Player",
+    "xp": "XP",
+    "level": "Level",
+    "streak": "Streak"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "language": "Language",
+    "theme": "Theme",
+    "notifications": "Notifications",
+    "privacy": "Privacy",
+    "connectedWallets": "Connected Wallets",
+    "saveChanges": "Save Changes",
+    "saved": "Saved!"
+  },
+  "certificate": {
+    "title": "Certificate of Completion",
+    "completedOn": "Completed on {date}",
+    "verifyOnChain": "Verify On-Chain",
+    "download": "Download Certificate",
+    "share": "Share Certificate",
+    "nftDetails": "NFT Details",
+    "mintAddress": "Mint Address"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try Again",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "viewAll": "View All",
+    "comingSoon": "Coming Soon"
+  }
+}

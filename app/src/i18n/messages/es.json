@@ -1,0 +1,149 @@
+{
+    "nav": {
+        "courses": "Cursos",
+        "dashboard": "Panel",
+        "leaderboard": "Clasificación",
+        "profile": "Perfil",
+        "settings": "Configuración",
+        "connect": "Conectar Billetera",
+        "disconnect": "Desconectar"
+    },
+    "landing": {
+        "hero": {
+            "title": "Construye en Solana.",
+            "subtitle": "Aprende. Crea. Gana credenciales on-chain.",
+            "cta": "Comienza a Aprender Gratis",
+            "stats": {
+                "courses": "Cursos",
+                "learners": "Estudiantes",
+                "credentials": "Credenciales Emitidas"
+            }
+        },
+        "features": {
+            "editor": {
+                "title": "Editor de Código Interactivo",
+                "description": "Escribe y ejecuta programas Solana directamente en tu navegador con retroalimentación en tiempo real."
+            },
+            "credentials": {
+                "title": "Credenciales On-Chain",
+                "description": "Gana certificados NFT soulbound almacenados permanentemente en Solana Devnet."
+            },
+            "multilang": {
+                "title": "Multiidioma",
+                "description": "Aprende en inglés, portugués o español — contenido en tu idioma nativo."
+            },
+            "gamification": {
+                "title": "Aprendizaje Gamificado",
+                "description": "Gana XP, sube de nivel y mantén rachas mientras avanzas en los cursos."
+            }
+        },
+        "cta": {
+            "title": "¿Listo para Construir en Solana?",
+            "subtitle": "Únete a miles de desarrolladores que aprenden el blockchain más rápido.",
+            "button": "Comienza a Aprender Gratis"
+        }
+    },
+    "course": {
+        "enroll": "Inscribirse Ahora",
+        "continue": "Continuar Aprendiendo",
+        "startCourse": "Iniciar Curso",
+        "enrolled": "Inscrito",
+        "difficulty": {
+            "beginner": "Principiante",
+            "intermediate": "Intermedio",
+            "advanced": "Avanzado"
+        },
+        "duration": "{minutes} min",
+        "lessons": "{count} lecciones",
+        "xpReward": "Recompensa de {xp} XP",
+        "noResults": "No se encontraron cursos",
+        "search": "Buscar cursos..."
+    },
+    "lesson": {
+        "complete": "Marcar como Completado",
+        "completed": "Completado",
+        "next": "Siguiente Lección",
+        "previous": "Lección Anterior",
+        "hints": "Mostrar Pistas",
+        "challenge": "Desafío de Código",
+        "runTests": "Ejecutar Pruebas",
+        "allTestsPassed": "¡Todas las pruebas pasaron!",
+        "testsFailed": "{count} prueba(s) fallaron"
+    },
+    "gamification": {
+        "xp": "{xp} XP",
+        "level": "Nivel {level}",
+        "streak": "Racha de {count} días",
+        "levelUp": "¡Subiste de Nivel! Ahora eres Nivel {level}",
+        "achievements": "Logros",
+        "noAchievements": "Completa cursos para ganar logros",
+        "xpEarned": "+{xp} XP ganados!"
+    },
+    "wallet": {
+        "connect": "Conectar Billetera",
+        "disconnect": "Desconectar",
+        "connecting": "Conectando...",
+        "required": "Se requiere billetera para esta acción",
+        "connected": "Conectado"
+    },
+    "dashboard": {
+        "title": "Panel",
+        "activeCourses": "Cursos Activos",
+        "recentAchievements": "Logros Recientes",
+        "activityFeed": "Actividad Reciente",
+        "recommendedCourses": "Recomendado Para Ti",
+        "noCourses": "No hay cursos inscritos aún",
+        "continueLearning": "Continuar Aprendiendo"
+    },
+    "profile": {
+        "title": "Perfil",
+        "editProfile": "Editar Perfil",
+        "skills": "Habilidades",
+        "credentials": "Credenciales",
+        "courses": "Cursos Completados",
+        "joinedAt": "Se unió el {date}",
+        "publicProfile": "Perfil Público",
+        "privateProfile": "Perfil Privado"
+    },
+    "leaderboard": {
+        "title": "Clasificación",
+        "weekly": "Esta Semana",
+        "monthly": "Este Mes",
+        "allTime": "Todos los Tiempos",
+        "rank": "Posición",
+        "player": "Jugador",
+        "xp": "XP",
+        "level": "Nivel",
+        "streak": "Racha"
+    },
+    "settings": {
+        "title": "Configuración",
+        "profile": "Perfil",
+        "language": "Idioma",
+        "theme": "Tema",
+        "notifications": "Notificaciones",
+        "privacy": "Privacidad",
+        "connectedWallets": "Billeteras Conectadas",
+        "saveChanges": "Guardar Cambios",
+        "saved": "¡Guardado!"
+    },
+    "certificate": {
+        "title": "Certificado de Finalización",
+        "completedOn": "Completado el {date}",
+        "verifyOnChain": "Verificar On-Chain",
+        "download": "Descargar Certificado",
+        "share": "Compartir Certificado",
+        "nftDetails": "Detalles del NFT",
+        "mintAddress": "Dirección de Acuñación"
+    },
+    "common": {
+        "loading": "Cargando...",
+        "error": "Algo salió mal",
+        "retry": "Volver a Intentar",
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "close": "Cerrar",
+        "viewAll": "Ver Todo",
+        "comingSoon": "Próximamente"
+    }
+}

@@ -1,0 +1,284 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap');
+@import "tailwindcss";
+
+
+/* ─── Solana Design System — Dark First ─────────────────────────────────── */
+
+:root {
+  /* Backgrounds */
+  --background: #0a0a0f;
+  --background-elevated: #111118;
+  --background-surface: #16161f;
+  --background-overlay: rgba(10, 10, 15, 0.8);
+
+  /* Foregrounds */
+  --foreground: #f0f0f5;
+  --foreground-muted: #a0a0b0;
+  --foreground-subtle: #606080;
+
+  /* Solana Brand */
+  --sol-green: #14f195;
+  --sol-purple: #9945ff;
+  --sol-blue: #00c2ff;
+  --sol-green-dim: rgba(20, 241, 149, 0.15);
+  --sol-purple-dim: rgba(153, 69, 255, 0.15);
+  --sol-blue-dim: rgba(0, 194, 255, 0.15);
+
+  /* Gamification */
+  --xp-gold: #f5a623;
+  --xp-gold-dim: rgba(245, 166, 35, 0.15);
+
+  /* Borders */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+
+  /* Semantic */
+  --success: #22c55e;
+  --error: #ef4444;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+
+  /* Radius */
+  --radius: 0.75rem;
+  --radius-sm: 0.5rem;
+  --radius-lg: 1rem;
+
+  /* Shadows */
+  --shadow-glow-green: 0 0 20px rgba(20, 241, 149, 0.3);
+  --shadow-glow-purple: 0 0 20px rgba(153, 69, 255, 0.3);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Light mode overrides */
+.light {
+  --background: #f8f8fc;
+  --background-elevated: #ffffff;
+  --background-surface: #f0f0f8;
+  --foreground: #1a1a2e;
+  --foreground-muted: #5a5a7a;
+  --foreground-subtle: #9090b0;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.15);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* ─── Tailwind v4 Theme Tokens ───────────────────────────────────────────── */
+
+@theme inline {
+  /* Fonts */
+  --font-sans: 'Geist', system-ui, sans-serif;
+  --font-mono: 'Fira Code', 'JetBrains Mono', monospace;
+  --font-display: 'JetBrains Mono', monospace;
+
+  /* Solana color palette */
+  --color-sol-green: var(--sol-green);
+  --color-sol-purple: var(--sol-purple);
+  --color-sol-blue: var(--sol-blue);
+  --color-xp-gold: var(--xp-gold);
+
+  /* Semantic colors */
+  --color-background: var(--background);
+  --color-background-elevated: var(--background-elevated);
+  --color-background-surface: var(--background-surface);
+  --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-subtle: var(--foreground-subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-success: var(--success);
+  --color-error: var(--error);
+  --color-warning: var(--warning);
+
+  /* Border radius */
+  --radius-DEFAULT: var(--radius);
+  --radius-sm: var(--radius-sm);
+  --radius-lg: var(--radius-lg);
+}
+
+/* ─── Base Styles ────────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Geist', system-ui, sans-serif;
+  line-height: 1.6;
+  min-height: 100dvh;
+}
+
+/* ─── Solana Gradient Utilities ──────────────────────────────────────────── */
+
+.gradient-sol {
+  background: linear-gradient(135deg, var(--sol-green) 0%, var(--sol-blue) 50%, var(--sol-purple) 100%);
+}
+
+.gradient-sol-text {
+  background: linear-gradient(135deg, var(--sol-green) 0%, var(--sol-blue) 50%, var(--sol-purple) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-sol-border {
+  border-image: linear-gradient(135deg, var(--sol-green), var(--sol-purple)) 1;
+}
+
+.gradient-hero {
+  background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(153, 69, 255, 0.3), transparent),
+    radial-gradient(ellipse 40% 40% at 80% 60%, rgba(20, 241, 149, 0.15), transparent),
+    var(--background);
+}
+
+/* ─── Card Styles ────────────────────────────────────────────────────────── */
+
+.card-glass {
+  background: var(--background-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(12px);
+}
+
+.card-glow-green:hover {
+  box-shadow: var(--shadow-glow-green);
+  border-color: rgba(20, 241, 149, 0.3);
+}
+
+.card-glow-purple:hover {
+  box-shadow: var(--shadow-glow-purple);
+  border-color: rgba(153, 69, 255, 0.3);
+}
+
+/* ─── Glow Effects ───────────────────────────────────────────────────────── */
+
+.glow-green {
+  box-shadow: 0 0 12px rgba(20, 241, 149, 0.4), 0 0 4px rgba(20, 241, 149, 0.6);
+}
+
+.glow-purple {
+  box-shadow: 0 0 12px rgba(153, 69, 255, 0.4), 0 0 4px rgba(153, 69, 255, 0.6);
+}
+
+.text-glow-green {
+  text-shadow: 0 0 10px rgba(20, 241, 149, 0.5);
+}
+
+/* ─── Animations ─────────────────────────────────────────────────────────── */
+
+@keyframes pulse-green {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.4s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(255, 255, 255, 0.05) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sol-purple);
+}
+
+/* ─── Focus Styles ───────────────────────────────────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid var(--sol-green);
+  outline-offset: 2px;
+}
+
+/* ─── Code Blocks ────────────────────────────────────────────────────────── */
+
+pre,
+code {
+  font-family: 'Fira Code', 'JetBrains Mono', monospace;
+}
