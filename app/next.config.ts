@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
     return config
   },
   images: {
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'inline',
     remotePatterns: [
       { protocol: 'https', hostname: 'cdn.sanity.io' },
       { protocol: 'https', hostname: '**.ipfs.nftstorage.link' },

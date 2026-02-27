@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
@@ -38,18 +39,24 @@ export function Navbar() {
             <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
                 {/* Logo */}
                 <Link href="/" className="flex items-center" aria-label="Superteam Brasil Academy">
-                    {/* Full horizontal SVG — desktop */}
-                    <img
+                    {/* Desktop logo */}
+                    <Image
                         src="/ST-YELLOW-HORIZONTAL.svg"
                         alt="Superteam Brasil"
-                        className="hidden h-9 w-auto sm:block"
+                        width={200}
+                        height={34}
+                        priority
+                        className="hidden sm:block h-9 w-auto"
                         style={{ minWidth: 160 }}
                     />
-                    {/* Mobile — still horizontal but shorter */}
-                    <img
+                    {/* Mobile logo */}
+                    <Image
                         src="/ST-YELLOW-HORIZONTAL.svg"
                         alt="Superteam Brasil"
-                        className="block h-7 w-auto sm:hidden"
+                        width={140}
+                        height={24}
+                        priority
+                        className="block sm:hidden h-7 w-auto"
                         style={{ minWidth: 120 }}
                     />
                 </Link>
