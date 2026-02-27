@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
 import { CheckCircle, Loader2 } from 'lucide-react'
 import { createEnrollmentService } from '@/services/factory'
+import { trackEvent } from '@/lib/analytics/posthog'
 import { toast } from 'sonner'
 
 interface EnrollButtonProps {
@@ -37,6 +38,7 @@ export function EnrollButton({ courseId }: EnrollButtonProps) {
             const service = createEnrollmentService()
             await service.enrollInCourse(publicKey.toBase58(), courseId)
             setEnrolled(true)
+            trackEvent('course_enrolled', { courseId })
             toast.success('Enrolled! Start your first lesson.', { icon: '🎉' })
         } catch {
             toast.error('Failed to enroll. Please try again.')

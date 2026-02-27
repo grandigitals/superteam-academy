@@ -37,19 +37,20 @@ export function Navbar() {
         <header className="sticky top-0 z-50 border-b border-border backdrop-blur-xl" style={{ background: 'rgba(15,22,17,0.9)' }}>
             <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
                 {/* Logo */}
-                <Link href="/" className="flex items-center gap-2" aria-label="Superteam Brasil Academy">
-                    {/* Full logo */}
+                <Link href="/" className="flex items-center" aria-label="Superteam Brasil Academy">
+                    {/* Full horizontal SVG — desktop */}
                     <img
-                        src="/logo.png"
+                        src="/ST-YELLOW-HORIZONTAL.svg"
                         alt="Superteam Brasil"
-                        className="hidden h-8 w-auto sm:block"
-                        style={{ imageRendering: 'auto' }}
+                        className="hidden h-9 w-auto sm:block"
+                        style={{ minWidth: 160 }}
                     />
-                    {/* Mobile: just the ST mark portion — cropped left side */}
+                    {/* Mobile — still horizontal but shorter */}
                     <img
-                        src="/logo.png"
-                        alt="STB"
-                        className="block h-8 w-8 sm:hidden object-cover object-left"
+                        src="/ST-YELLOW-HORIZONTAL.svg"
+                        alt="Superteam Brasil"
+                        className="block h-7 w-auto sm:hidden"
+                        style={{ minWidth: 120 }}
                     />
                 </Link>
 

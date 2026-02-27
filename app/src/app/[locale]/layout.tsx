@@ -6,6 +6,7 @@ import { SolanaProvider } from '@/components/wallet/SolanaProvider'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { ThemeProvider } from '@/components/layout/ThemeProvider'
+import { PostHogProvider } from '@/components/providers/PostHogProvider'
 import { Toaster } from 'sonner'
 import '../globals.css'
 
@@ -32,18 +33,20 @@ export default async function LocaleLayout({ children, params }: Props) {
     const messages = await getMessages()
 
     return (
-        <ThemeProvider>
-            <NextIntlClientProvider messages={messages}>
-                <SolanaProvider>
-                    <Navbar />
-                    <main className="min-h-[calc(100dvh-4rem)]">
-                        {children}
-                    </main>
-                    <Footer />
-                    <Toaster position="bottom-right" theme="dark" richColors />
-                </SolanaProvider>
-            </NextIntlClientProvider>
-        </ThemeProvider>
+        <PostHogProvider>
+            <ThemeProvider>
+                <NextIntlClientProvider messages={messages}>
+                    <SolanaProvider>
+                        <Navbar />
+                        <main className="min-h-[calc(100dvh-4rem)]">
+                            {children}
+                        </main>
+                        <Footer />
+                        <Toaster position="bottom-right" theme="dark" richColors />
+                    </SolanaProvider>
+                </NextIntlClientProvider>
+            </ThemeProvider>
+        </PostHogProvider>
     )
 }
 

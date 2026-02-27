@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { createLearningProgressService } from '@/services/factory'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useXP } from '@/hooks/useXP'
+import { trackEvent } from '@/lib/analytics/posthog'
 
 interface CompleteButtonProps {
     courseId: string
@@ -41,6 +42,7 @@ export function CompleteButton({ courseId, lessonId, xpReward = 50 }: CompleteBu
             setDone(true)
             // Update XP in store immediately for instant UI feedback
             setXP(totalXP)
+            trackEvent('lesson_completed', { courseId, lessonId, xpEarned })
             toast.success(`+${xpEarned} XP earned!`, { icon: '⚡', duration: 3000 })
 
             // Then re-fetch from source to ensure accuracy

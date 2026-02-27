@@ -1,5 +1,6 @@
 import type { NextConfig } from 'next'
 import createNextIntlPlugin from 'next-intl/plugin'
+import { withSentryConfig } from '@sentry/nextjs'
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
@@ -23,4 +24,15 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default withNextIntl(nextConfig)
+const withIntl = withNextIntl(nextConfig)
+
+// Sentry wraps on top — only activates when DSN + auth token are present
+export default withSentryConfig(withIntl, {
+  // Suppress source map upload noise when no auth token is set
+  silent: !process.env.SENTRY_AUTH_TOKEN,
+  // Upload source maps only when SENTRY_AUTH_TOKEN is provided
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+})
+
