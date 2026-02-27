@@ -6,31 +6,45 @@ import { useTranslations } from 'next-intl'
 import { CheckCircle, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { createLearningProgressService } from '@/services/factory'
+import { useAuthStore } from '@/store/useAuthStore'
+import { useXP } from '@/hooks/useXP'
 
 interface CompleteButtonProps {
     courseId: string
     lessonId: string
+    xpReward?: number
 }
 
-export function CompleteButton({ courseId, lessonId }: CompleteButtonProps) {
+export function CompleteButton({ courseId, lessonId, xpReward = 50 }: CompleteButtonProps) {
     const { publicKey } = useWallet()
     const t = useTranslations('lesson')
     const [loading, setLoading] = useState(false)
     const [done, setDone] = useState(false)
+    const { refreshXP } = useXP()
+    const setXP = useAuthStore(s => s.setXP)
 
     const handleComplete = async () => {
         if (!publicKey) return
         setLoading(true)
         try {
             const service = createLearningProgressService()
-            const lessonIndex = parseInt(lessonId.slice(1), 10) - 1
-            const { xpEarned } = await service.completeLesson(
+            // Parse numeric index from lesson ID (e.g. "l3" → index 2)
+            const match = lessonId.match(/\d+/)
+            const lessonIndex = match ? parseInt(match[0], 10) - 1 : 0
+
+            const { xpEarned, totalXP } = await service.completeLesson(
                 publicKey.toBase58(),
                 courseId,
                 lessonIndex
             )
+
             setDone(true)
+            // Update XP in store immediately for instant UI feedback
+            setXP(totalXP)
             toast.success(`+${xpEarned} XP earned!`, { icon: '⚡', duration: 3000 })
+
+            // Then re-fetch from source to ensure accuracy
+            await refreshXP()
         } catch {
             toast.error('Failed to record completion')
         } finally {

@@ -1,19 +1,19 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import type { Metadata } from 'next'
-import { LayoutDashboard, Flame, Award, BookOpen, TrendingUp } from 'lucide-react'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { LayoutDashboard, Flame, Award, BookOpen } from 'lucide-react'
 import { XPBar } from '@/components/gamification/XPBar'
 import { LevelBadge } from '@/components/gamification/LevelBadge'
 import { CourseGrid } from '@/components/courses/CourseGrid'
 import { WalletGate } from '@/components/wallet/WalletGate'
-
-export const metadata: Metadata = {
-    title: 'Dashboard',
-    description: 'Your Superteam Academy learning dashboard',
-}
-
-const ACTIVE_COURSES = [
-    { id: '1', slug: 'intro-to-solana', title: 'Introduction to Solana', description: 'Learn the basics', difficulty: 'beginner' as const, durationMinutes: 120, xpReward: 500, thumbnailUrl: '', instructorName: 'Superteam', moduleCount: 3, lessonCount: 9 },
-    { id: '4', slug: 'solana-token-2022', title: 'Token-2022 Deep Dive', description: 'Token extensions', difficulty: 'intermediate' as const, durationMinutes: 180, xpReward: 900, thumbnailUrl: '', instructorName: 'Superteam', moduleCount: 4, lessonCount: 14 },
-]
+import { useAuthStore } from '@/store/useAuthStore'
+import { useXP } from '@/hooks/useXP'
+import { createEnrollmentService, createLearningProgressService } from '@/services/factory'
+import type { Enrollment } from '@/services/types'
+import type { StreakData } from '@/services/types'
+import { MOCK_COURSES } from '@/services/CourseService'
 
 const ACHIEVEMENTS = [
     { id: 'first-lesson', name: 'First Steps', icon: '🎯', xp: 100, desc: 'Completed your first lesson' },
@@ -22,8 +22,36 @@ const ACHIEVEMENTS = [
 ]
 
 export default function DashboardPage() {
-    const MOCK_XP = 2700
-    const MOCK_STREAK = 4
+    const { publicKey } = useWallet()
+    const { xp, isAuthenticated } = useAuthStore()
+    const { refreshXP } = useXP()
+
+    const [enrollments, setEnrollments] = useState<Enrollment[]>([])
+    const [streak, setStreak] = useState<StreakData | null>(null)
+    const [loadingData, setLoadingData] = useState(true)
+
+    useEffect(() => {
+        if (!publicKey || !isAuthenticated) { setLoadingData(false); return }
+        const wallet = publicKey.toBase58()
+
+        Promise.all([
+            createEnrollmentService().getEnrollments(wallet),
+            createLearningProgressService().getStreakData(wallet),
+            refreshXP(),
+        ]).then(([e, s]) => {
+            setEnrollments(e)
+            setStreak(s)
+        }).catch(console.warn).finally(() => setLoadingData(false))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [publicKey, isAuthenticated])
+
+    // Map enrollments to courses for CourseGrid
+    const enrolledCourses = enrollments
+        .map(e => MOCK_COURSES.find(c => c.id === e.courseId || c.slug === e.courseId))
+        .filter(Boolean) as typeof MOCK_COURSES
+
+    const currentStreak = streak?.currentStreak ?? 0
+    const streakHistory = streak?.history ?? Array.from({ length: 7 }, (_, i) => ({ date: '', completed: false }))
 
     return (
         <WalletGate requireAuth message="Connect your wallet to access your dashboard.">
@@ -40,28 +68,26 @@ export default function DashboardPage() {
                         <div className="card-glass rounded-2xl p-5">
                             <div className="mb-2 flex items-center justify-between">
                                 <span className="text-xs text-foreground-muted uppercase tracking-wide">Total XP</span>
-                                <LevelBadge xp={MOCK_XP} size="sm" />
+                                <LevelBadge xp={xp} size="sm" />
                             </div>
-                            <div className="font-display text-2xl font-bold text-sol-green">{MOCK_XP.toLocaleString()}</div>
-                            <XPBar xp={MOCK_XP} className="mt-2" showDetails={false} />
+                            <div className="font-display text-2xl font-bold text-sol-green">{xp.toLocaleString()}</div>
+                            <XPBar xp={xp} className="mt-2" showDetails={false} />
                         </div>
 
                         <div className="card-glass rounded-2xl p-5">
                             <span className="text-xs text-foreground-muted uppercase tracking-wide">Current Streak</span>
                             <div className="mt-2 flex items-end gap-2">
-                                <span className="font-display text-2xl font-bold text-xp-gold">{MOCK_STREAK}</span>
+                                <span className="font-display text-2xl font-bold text-xp-gold">{currentStreak}</span>
                                 <Flame className="mb-0.5 h-5 w-5 text-xp-gold" fill="currentColor" />
                                 <span className="mb-0.5 text-sm text-foreground-muted">days</span>
                             </div>
-                            {/* Mini streak calendar */}
                             <div className="mt-2 flex gap-1">
-                                {Array.from({ length: 7 }, (_, i) => (
+                                {streakHistory.map((day, i) => (
                                     <div
                                         key={i}
                                         className="h-4 w-4 rounded-sm"
-                                        style={{
-                                            background: i >= 7 - MOCK_STREAK ? 'rgba(20,241,149,0.7)' : 'rgba(255,255,255,0.08)',
-                                        }}
+                                        title={day.date}
+                                        style={{ background: day.completed ? 'rgba(20,241,149,0.7)' : 'rgba(255,255,255,0.08)' }}
                                     />
                                 ))}
                             </div>
@@ -69,8 +95,12 @@ export default function DashboardPage() {
 
                         <div className="card-glass rounded-2xl p-5">
                             <span className="text-xs text-foreground-muted uppercase tracking-wide">Courses Active</span>
-                            <div className="mt-2 font-display text-2xl font-bold text-foreground">{ACTIVE_COURSES.length}</div>
-                            <p className="mt-1 text-xs text-foreground-muted">In progress</p>
+                            <div className="mt-2 font-display text-2xl font-bold text-foreground">
+                                {loadingData ? '—' : enrolledCourses.length || enrollments.length}
+                            </div>
+                            <p className="mt-1 text-xs text-foreground-muted">
+                                {enrollments.length > 0 ? 'Enrolled courses' : 'No courses yet'}
+                            </p>
                         </div>
 
                         <div className="card-glass rounded-2xl p-5">
@@ -90,18 +120,28 @@ export default function DashboardPage() {
                             <BookOpen className="h-5 w-5 text-sol-green" />
                             <h2 className="font-display text-xl font-bold">Active Courses</h2>
                         </div>
-                        <CourseGrid
-                            courses={ACTIVE_COURSES}
-                            showProgress
-                            progressMap={{ '1': 44, '4': 12 }}
-                        />
+                        {loadingData ? (
+                            <div className="flex h-32 items-center justify-center text-sm text-foreground-muted">
+                                Loading your courses…
+                            </div>
+                        ) : enrolledCourses.length > 0 ? (
+                            <CourseGrid courses={enrolledCourses} />
+                        ) : (
+                            <div className="flex h-32 flex-col items-center justify-center gap-2 text-foreground-muted">
+                                <BookOpen className="h-8 w-8 opacity-30" />
+                                <p className="text-sm">
+                                    No courses enrolled yet.{' '}
+                                    <a href="/courses" className="text-sol-green hover:underline">Browse courses →</a>
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     {/* Recent Achievements */}
                     <div>
                         <div className="mb-4 flex items-center gap-2">
                             <Award className="h-5 w-5 text-xp-gold" />
-                            <h2 className="font-display text-xl font-bold">Recent Achievements</h2>
+                            <h2 className="font-display text-xl font-bold">Achievements</h2>
                         </div>
                         <div className="grid gap-3 sm:grid-cols-3">
                             {ACHIEVEMENTS.map(a => (
