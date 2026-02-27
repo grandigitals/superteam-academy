@@ -26,7 +26,7 @@ export default function DashboardPage() {
     const MOCK_STREAK = 4
 
     return (
-        <WalletGate>
+        <WalletGate requireAuth message="Connect your wallet to access your dashboard.">
             <div className="min-h-screen px-4 py-10">
                 <div className="mx-auto max-w-7xl space-y-8">
                     {/* Header */}

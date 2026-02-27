@@ -6,7 +6,10 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { cn } from '@/lib/utils'
 import { LevelBadge } from '@/components/gamification/LevelBadge'
-import { BookOpen, LayoutDashboard, Trophy, Menu, X, Globe, Zap } from 'lucide-react'
+import { SignInButton } from '@/components/wallet/SignInButton'
+import { useAuthStore } from '@/store/useAuthStore'
+import { deriveLevel } from '@/lib/solana/xp'
+import { BookOpen, LayoutDashboard, Trophy, Menu, X, Zap } from 'lucide-react'
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 
@@ -19,8 +22,10 @@ const LOCALES = [
 export function Navbar() {
     const t = useTranslations('nav')
     const { connected } = useWallet()
+    const { isAuthenticated, xp } = useAuthStore()
     const pathname = usePathname()
     const [mobileOpen, setMobileOpen] = useState(false)
+    const level = deriveLevel(xp)
 
     const navLinks = [
         { href: '/courses', label: t('courses'), icon: BookOpen },
@@ -58,7 +63,7 @@ export function Navbar() {
                 </div>
 
                 {/* Right side */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                     {/* Language switcher */}
                     <div className="hidden items-center gap-1 md:flex">
                         {LOCALES.map(({ code, label, flag }) => (
@@ -73,7 +78,17 @@ export function Navbar() {
                         ))}
                     </div>
 
-                    {/* Wallet button */}
+                    {/* Level badge — only when authenticated */}
+                    {isAuthenticated && (
+                        <Link href="/profile" title={`Level ${level}`}>
+                            <LevelBadge xp={xp} size="sm" />
+                        </Link>
+                    )}
+
+                    {/* SIWS Sign In / user menu */}
+                    <SignInButton />
+
+                    {/* Wallet connect button */}
                     <div className="wallet-adapter-custom">
                         <WalletMultiButton />
                     </div>
@@ -104,6 +119,20 @@ export function Navbar() {
                                 {label}
                             </Link>
                         ))}
+                        {/* Language switcher — mobile */}
+                        <div className="flex gap-2 px-3 py-2 border-t border-border mt-1 pt-3">
+                            {LOCALES.map(({ code, label, flag }) => (
+                                <Link
+                                    key={code}
+                                    href={`/${code}${pathname?.replace(/^\/(en|pt-BR|es)/, '') ?? ''}`}
+                                    className="text-xs font-mono text-foreground-muted hover:text-sol-green"
+                                    title={flag}
+                                    onClick={() => setMobileOpen(false)}
+                                >
+                                    {label}
+                                </Link>
+                            ))}
+                        </div>
                     </div>
                 </div>
             )}

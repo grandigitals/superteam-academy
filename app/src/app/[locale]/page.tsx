@@ -1,6 +1,6 @@
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { ArrowRight, Zap, Shield, Globe, Code2, Star, Users, Award, ChevronRight } from 'lucide-react'
+import { ArrowRight, Zap, Shield, Globe, Code2, Star, Award, ChevronRight } from 'lucide-react'
 
 const STATS = [
     { value: '20+', labelKey: 'courses' },
@@ -16,6 +16,7 @@ const LEARNING_PATHS = [
         difficulty: 'Beginner',
         xp: 1500,
         lessons: 12,
+        slug: 'intro-solana',
         gradient: 'from-sol-green/20 to-sol-blue/20',
         border: 'border-sol-green/30',
         accent: 'text-sol-green',
@@ -27,6 +28,7 @@ const LEARNING_PATHS = [
         difficulty: 'Intermediate',
         xp: 3000,
         lessons: 18,
+        slug: 'defi-on-solana',
         gradient: 'from-sol-blue/20 to-sol-purple/20',
         border: 'border-sol-blue/30',
         accent: 'text-sol-blue',
@@ -38,6 +40,7 @@ const LEARNING_PATHS = [
         difficulty: 'Advanced',
         xp: 5000,
         lessons: 24,
+        slug: 'anchor-program-dev',
         gradient: 'from-sol-purple/20 to-xp-gold/20',
         border: 'border-sol-purple/30',
         accent: 'text-sol-purple',
@@ -46,12 +49,11 @@ const LEARNING_PATHS = [
 
 export default function LandingPage() {
     const t = useTranslations('landing')
-    const tCommon = useTranslations('common')
 
     return (
         <div className="flex flex-col">
             {/* ── Hero ─────────────────────────────────────────────────── */}
-            <section className="gradient-hero relative overflow-hidden px-4 py-24 sm:py-36">
+            <section className="gradient-hero relative overflow-hidden px-4 py-20 sm:py-36">
                 {/* Decorative glow orbs */}
                 <div className="pointer-events-none absolute inset-0 overflow-hidden">
                     <div className="absolute -top-1/4 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full blur-3xl" style={{ background: 'radial-gradient(circle, rgba(153,69,255,0.25) 0%, transparent 70%)' }} />
@@ -60,25 +62,27 @@ export default function LandingPage() {
 
                 <div className="relative mx-auto max-w-4xl text-center">
                     {/* Badge */}
-                    <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-sol-green/30 bg-sol-green/10 px-4 py-1.5 text-sm font-medium text-sol-green">
-                        <Zap className="h-3.5 w-3.5" fill="currentColor" />
+                    <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-sol-green/30 bg-sol-green/10 px-4 py-1.5 text-xs font-medium text-sol-green sm:text-sm">
+                        <Zap className="h-3.5 w-3.5 flex-shrink-0" fill="currentColor" />
                         Built for the Solana Ecosystem
                     </div>
 
-                    <h1 className="mb-6 font-display text-5xl font-bold leading-tight sm:text-7xl">
+                    {/* Hero title — smaller on mobile, huge on desktop */}
+                    <h1 className="mb-5 font-display text-4xl font-bold leading-tight sm:text-6xl lg:text-7xl">
                         <span className="gradient-sol-text">{t('hero.title')}</span>
                         <br />
                         <span className="text-foreground">{t('hero.subtitle')}</span>
                     </h1>
 
-                    <p className="mx-auto mb-10 max-w-2xl text-lg text-foreground-muted">
-                        The most comprehensive learning platform for Solana blockchain development. Interactive coding challenges, on-chain credentials, and gamified progression — in PT-BR, ES, and EN.
+                    <p className="mx-auto mb-8 max-w-2xl text-base text-foreground-muted sm:text-lg">
+                        The most comprehensive learning platform for Solana blockchain development. Interactive coding challenges, on-chain credentials, and gamified progression.
                     </p>
 
-                    <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+                    {/* CTA buttons — stacked on mobile, row on sm+ */}
+                    <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center">
                         <Link
                             href="/courses"
-                            className="group flex items-center gap-2 rounded-xl px-8 py-3.5 font-semibold text-background transition-all hover:scale-105 hover:shadow-lg"
+                            className="group flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 font-semibold text-background transition-all hover:scale-105"
                             style={{ background: 'linear-gradient(135deg, #14f195, #00c2ff)', boxShadow: '0 0 30px rgba(20,241,149,0.3)' }}
                         >
                             {t('hero.cta')}
@@ -87,18 +91,18 @@ export default function LandingPage() {
                         <Link
                             href="https://github.com/solanabr/superteam-academy"
                             target="_blank"
-                            className="flex items-center gap-2 rounded-xl border border-border px-8 py-3.5 font-medium text-foreground-muted transition-all hover:border-border-strong hover:text-foreground"
+                            className="flex items-center justify-center gap-2 rounded-xl border border-border px-8 py-3.5 font-medium text-foreground-muted transition-all hover:border-border-strong hover:text-foreground"
                         >
                             View on GitHub
                         </Link>
                     </div>
 
                     {/* Stats */}
-                    <div className="mt-16 flex flex-wrap justify-center gap-x-12 gap-y-4">
+                    <div className="mt-14 flex flex-wrap justify-center gap-x-8 gap-y-6 sm:gap-x-12">
                         {STATS.map(({ value, labelKey }) => (
                             <div key={labelKey} className="text-center">
-                                <div className="font-display text-3xl font-bold gradient-sol-text">{value}</div>
-                                <div className="mt-0.5 text-sm text-foreground-muted">{t(`hero.stats.${labelKey}`)}</div>
+                                <div className="font-display text-2xl font-bold gradient-sol-text sm:text-3xl">{value}</div>
+                                <div className="mt-0.5 text-xs text-foreground-muted sm:text-sm">{t(`hero.stats.${labelKey}`)}</div>
                             </div>
                         ))}
                     </div>
@@ -106,12 +110,13 @@ export default function LandingPage() {
             </section>
 
             {/* ── Features ─────────────────────────────────────────────── */}
-            <section className="px-4 py-20">
+            <section className="px-4 py-16 sm:py-20">
                 <div className="mx-auto max-w-7xl">
-                    <h2 className="mb-12 text-center font-display text-3xl font-bold sm:text-4xl">
+                    <h2 className="mb-10 text-center font-display text-2xl font-bold sm:text-4xl">
                         Why <span className="gradient-sol-text">Superteam Academy?</span>
                     </h2>
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    {/* 2 cols on mobile, 4 on lg */}
+                    <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
                         {[
                             { icon: Code2, titleKey: 'editor', color: 'text-sol-green', bg: 'bg-sol-green/10' },
                             { icon: Shield, titleKey: 'credentials', color: 'text-sol-purple', bg: 'bg-sol-purple/10' },
@@ -120,13 +125,13 @@ export default function LandingPage() {
                         ].map(({ icon: Icon, titleKey, color, bg }) => (
                             <div
                                 key={titleKey}
-                                className="card-glass card-glow-green group rounded-2xl p-6 transition-all duration-300"
+                                className="card-glass card-glow-green group rounded-2xl p-4 sm:p-6 transition-all duration-300"
                             >
-                                <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl ${bg}`}>
-                                    <Icon className={`h-6 w-6 ${color}`} />
+                                <div className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl sm:h-12 sm:w-12 ${bg}`}>
+                                    <Icon className={`h-5 w-5 sm:h-6 sm:w-6 ${color}`} />
                                 </div>
-                                <h3 className="mb-2 font-semibold text-foreground">{t(`features.${titleKey}.title`)}</h3>
-                                <p className="text-sm text-foreground-muted leading-relaxed">{t(`features.${titleKey}.description`)}</p>
+                                <h3 className="mb-1 text-sm font-semibold text-foreground sm:text-base sm:mb-2">{t(`features.${titleKey}.title`)}</h3>
+                                <p className="text-xs text-foreground-muted leading-relaxed sm:text-sm">{t(`features.${titleKey}.description`)}</p>
                             </div>
                         ))}
                     </div>
@@ -134,32 +139,33 @@ export default function LandingPage() {
             </section>
 
             {/* ── Learning Paths ────────────────────────────────────────── */}
-            <section className="px-4 py-20" style={{ background: 'var(--background-elevated)' }}>
+            <section className="px-4 py-16 sm:py-20" style={{ background: 'var(--background-elevated)' }}>
                 <div className="mx-auto max-w-7xl">
-                    <div className="mb-12 flex items-end justify-between">
+                    <div className="mb-8 flex items-end justify-between sm:mb-12">
                         <div>
-                            <h2 className="font-display text-3xl font-bold sm:text-4xl">
+                            <h2 className="font-display text-2xl font-bold sm:text-4xl">
                                 Learning <span className="gradient-sol-text">Paths</span>
                             </h2>
-                            <p className="mt-2 text-foreground-muted">Structured tracks for every developer level</p>
+                            <p className="mt-2 text-sm text-foreground-muted sm:text-base">Structured tracks for every developer level</p>
                         </div>
-                        <Link href="/courses" className="hidden items-center gap-1 text-sm text-sol-green hover:underline sm:flex">
-                            View all courses <ChevronRight className="h-4 w-4" />
+                        <Link href="/courses" className="flex items-center gap-1 text-sm text-sol-green hover:underline whitespace-nowrap ml-4">
+                            View all <ChevronRight className="h-4 w-4" />
                         </Link>
                     </div>
 
-                    <div className="grid gap-6 md:grid-cols-3">
+                    {/* 1 col on mobile, 3 on md */}
+                    <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 md:grid-cols-3">
                         {LEARNING_PATHS.map((path) => (
                             <Link
                                 key={path.id}
-                                href={`/courses?track=${path.id}`}
-                                className={`card-glass group relative overflow-hidden rounded-2xl border p-6 transition-all duration-300 hover:scale-[1.02] ${path.border}`}
+                                href={`/courses/${path.slug}`}
+                                className={`card-glass group relative overflow-hidden rounded-2xl border p-5 sm:p-6 transition-all duration-300 hover:scale-[1.02] ${path.border}`}
                             >
                                 <div className={`absolute inset-0 bg-gradient-to-br ${path.gradient} opacity-50`} />
                                 <div className="relative">
                                     <div className={`mb-1 text-xs font-semibold uppercase tracking-wide ${path.accent}`}>{path.difficulty}</div>
-                                    <h3 className="mb-2 text-lg font-bold text-foreground">{path.title}</h3>
-                                    <p className="mb-4 text-sm text-foreground-muted">{path.description}</p>
+                                    <h3 className="mb-2 text-base font-bold text-foreground sm:text-lg">{path.title}</h3>
+                                    <p className="mb-4 text-xs text-foreground-muted sm:text-sm">{path.description}</p>
                                     <div className="flex items-center gap-4 text-xs text-foreground-subtle">
                                         <span className="flex items-center gap-1"><Award className="h-3.5 w-3.5 text-xp-gold" />{path.xp.toLocaleString()} XP</span>
                                         <span className="flex items-center gap-1"><Code2 className="h-3.5 w-3.5" />{path.lessons} lessons</span>
@@ -175,10 +181,10 @@ export default function LandingPage() {
             </section>
 
             {/* ── CTA ──────────────────────────────────────────────────── */}
-            <section className="px-4 py-24 text-center">
+            <section className="px-4 py-20 text-center sm:py-24">
                 <div className="mx-auto max-w-2xl">
-                    <h2 className="mb-4 font-display text-4xl font-bold">{t('cta.title')}</h2>
-                    <p className="mb-8 text-foreground-muted">{t('cta.subtitle')}</p>
+                    <h2 className="mb-4 font-display text-3xl font-bold sm:text-4xl">{t('cta.title')}</h2>
+                    <p className="mb-8 text-sm text-foreground-muted sm:text-base">{t('cta.subtitle')}</p>
                     <Link
                         href="/courses"
                         className="inline-flex items-center gap-2 rounded-xl px-8 py-3.5 font-semibold text-background transition-all hover:scale-105"

@@ -1,7 +1,8 @@
 // Shared TypeScript types for the service layer
 
 export type Difficulty = 'beginner' | 'intermediate' | 'advanced'
-export type LessonType = 'content' | 'challenge'
+export type LessonType = 'content' | 'challenge' | 'quiz' | 'video'
+export type CourseTrack = 'fundamentals' | 'defi' | 'anchor' | 'nft' | 'security'
 export type ServiceMode = 'mock' | 'onchain'
 export type LeaderboardTimeframe = 'weekly' | 'monthly' | 'all-time'
 
@@ -70,6 +71,24 @@ export interface UserProfile {
   isPublic: boolean
 }
 
+export interface Lesson {
+  id: string
+  title: string
+  type: LessonType
+  xpReward: number
+  estimatedMinutes: number
+  order: number
+  slug?: string
+  starterCode?: string
+}
+
+export interface CourseModule {
+  id: string
+  title: string
+  order: number
+  lessons: Lesson[]
+}
+
 export interface Course {
   id: string
   slug: string
@@ -82,8 +101,10 @@ export interface Course {
   instructorName: string
   moduleCount: number
   lessonCount: number
+  track?: CourseTrack | string
   onchainCourseId?: string
   prerequisiteSlugs?: string[]
+  modules?: CourseModule[]
 }
 
 export interface Enrollment {
