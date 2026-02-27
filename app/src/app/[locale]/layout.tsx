@@ -1,4 +1,3 @@
-import type { Metadata } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
@@ -10,21 +9,6 @@ import { ThemeProvider } from '@/components/layout/ThemeProvider'
 import { Toaster } from 'sonner'
 import '../globals.css'
 
-export const metadata: Metadata = {
-    title: {
-        default: 'Superteam Academy — Learn Solana Development',
-        template: '%s | Superteam Academy',
-    },
-    description:
-        'The interactive learning platform for Solana blockchain development. Earn XP, build real programs, and get on-chain credentials.',
-    keywords: ['Solana', 'blockchain', 'learn', 'Web3', 'development', 'LMS'],
-    openGraph: {
-        title: 'Superteam Academy',
-        description: 'Learn Solana Development. Earn on-chain credentials.',
-        type: 'website',
-    },
-}
-
 type SupportedLocale = 'en' | 'pt-BR' | 'es'
 
 interface Props {
@@ -32,6 +16,12 @@ interface Props {
     params: Promise<{ locale: string }>
 }
 
+/**
+ * Locale layout — wraps pages in providers.
+ *
+ * ⚠️  NO <html> or <body> tags here. The root layout.tsx owns those.
+ *     Adding them here causes nested HTML → React hydration errors.
+ */
 export default async function LocaleLayout({ children, params }: Props) {
     const { locale } = await params
 
@@ -42,24 +32,18 @@ export default async function LocaleLayout({ children, params }: Props) {
     const messages = await getMessages()
 
     return (
-        <html lang={locale} suppressHydrationWarning>
-            <head>
-                <link rel="preconnect" href="https://fonts.googleapis.com" />
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-            </head>
-            <body>
-                <ThemeProvider>
-                    <NextIntlClientProvider messages={messages}>
-                        <SolanaProvider>
-                            <Navbar />
-                            <main className="min-h-[calc(100dvh-4rem)]">{children}</main>
-                            <Footer />
-                            <Toaster position="bottom-right" theme="dark" richColors />
-                        </SolanaProvider>
-                    </NextIntlClientProvider>
-                </ThemeProvider>
-            </body>
-        </html>
+        <ThemeProvider>
+            <NextIntlClientProvider messages={messages}>
+                <SolanaProvider>
+                    <Navbar />
+                    <main className="min-h-[calc(100dvh-4rem)]">
+                        {children}
+                    </main>
+                    <Footer />
+                    <Toaster position="bottom-right" theme="dark" richColors />
+                </SolanaProvider>
+            </NextIntlClientProvider>
+        </ThemeProvider>
     )
 }
 
