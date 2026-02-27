@@ -69,7 +69,7 @@ export function LeaderboardTable({ weekly, monthly, allTime }: LeaderboardTableP
                         {/* Avatar placeholder */}
                         <div
                             className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold text-background"
-                            style={{ background: 'linear-gradient(135deg, #9945ff, #14f195)' }}
+                            style={{ background: 'linear-gradient(135deg, #2f6b3f, #ffd23f)' }}
                         >
                             {(entry.displayName ?? entry.wallet)[0]?.toUpperCase()}
                         </div>

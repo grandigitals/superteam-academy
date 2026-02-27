@@ -2,41 +2,46 @@
 @import "tailwindcss";
 
 
-/* ─── Solana Design System — Dark First ─────────────────────────────────── */
+/* ─── Superteam Brasil Design System — Dark First ───────────────────────── */
 
 :root {
-  /* Backgrounds */
-  --background: #0a0a0f;
-  --background-elevated: #111118;
-  --background-surface: #16161f;
-  --background-overlay: rgba(10, 10, 15, 0.8);
+  /* Backgrounds — shifted to brand dark green tint */
+  --background: #0f1611;
+  --background-elevated: #141d16;
+  --background-surface: #192019;
+  --background-overlay: rgba(15, 22, 17, 0.85);
 
   /* Foregrounds */
-  --foreground: #f0f0f5;
-  --foreground-muted: #a0a0b0;
-  --foreground-subtle: #606080;
+  --foreground: #f7eacb;
+  --foreground-muted: #c8b98a;
+  --foreground-subtle: #7a6e50;
 
-  /* Solana Brand */
-  --sol-green: #14f195;
-  --sol-purple: #9945ff;
-  --sol-blue: #00c2ff;
-  --sol-green-dim: rgba(20, 241, 149, 0.15);
-  --sol-purple-dim: rgba(153, 69, 255, 0.15);
-  --sol-blue-dim: rgba(0, 194, 255, 0.15);
+  /* Superteam Brasil Brand Palette */
+  --sol-green: #ffd23f;
+  /* primary accent — brand yellow */
+  --sol-purple: #2f6b3f;
+  /* secondary — forest green */
+  --sol-blue: #008c4c;
+  /* tertiary — emerald green */
+  --brand-cream: #f7eacb;
+  /* cream — for light text on dark */
+  --sol-green-dim: rgba(255, 210, 63, 0.15);
+  --sol-purple-dim: rgba(47, 107, 63, 0.15);
+  --sol-blue-dim: rgba(0, 140, 76, 0.15);
 
   /* Gamification */
-  --xp-gold: #f5a623;
-  --xp-gold-dim: rgba(245, 166, 35, 0.15);
+  --xp-gold: #ffd23f;
+  --xp-gold-dim: rgba(255, 210, 63, 0.15);
 
   /* Borders */
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.15);
+  --border: rgba(247, 234, 203, 0.08);
+  --border-strong: rgba(247, 234, 203, 0.18);
 
   /* Semantic */
-  --success: #22c55e;
+  --success: #008c4c;
   --error: #ef4444;
-  --warning: #f59e0b;
-  --info: #3b82f6;
+  --warning: #ffd23f;
+  --info: #2f6b3f;
 
   /* Radius */
   --radius: 0.75rem;
@@ -44,22 +49,22 @@
   --radius-lg: 1rem;
 
   /* Shadows */
-  --shadow-glow-green: 0 0 20px rgba(20, 241, 149, 0.3);
-  --shadow-glow-purple: 0 0 20px rgba(153, 69, 255, 0.3);
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-glow-green: 0 0 20px rgba(255, 210, 63, 0.35);
+  --shadow-glow-purple: 0 0 20px rgba(0, 140, 76, 0.3);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.5);
 }
 
 /* Light mode overrides */
 .light {
-  --background: #f8f8fc;
+  --background: #f7eacb;
   --background-elevated: #ffffff;
-  --background-surface: #f0f0f8;
-  --foreground: #1a1a2e;
-  --foreground-muted: #5a5a7a;
-  --foreground-subtle: #9090b0;
-  --border: rgba(0, 0, 0, 0.08);
-  --border-strong: rgba(0, 0, 0, 0.15);
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.1);
+  --background-surface: #efe0b4;
+  --foreground: #1b231d;
+  --foreground-muted: #3d5140;
+  --foreground-subtle: #7a9a7e;
+  --border: rgba(27, 35, 29, 0.1);
+  --border-strong: rgba(27, 35, 29, 0.2);
+  --shadow-card: 0 4px 24px rgba(27, 35, 29, 0.12);
 }
 
 /* ─── Tailwind v4 Theme Tokens ───────────────────────────────────────────── */
@@ -117,26 +122,29 @@ body {
   min-height: 100dvh;
 }
 
-/* ─── Solana Gradient Utilities ──────────────────────────────────────────── */
+/* ─── Superteam Brasil Gradient Utilities ────────────────────────────────── */
 
 .gradient-sol {
-  background: linear-gradient(135deg, var(--sol-green) 0%, var(--sol-blue) 50%, var(--sol-purple) 100%);
+  /* Yellow → Emerald — brand gradient */
+  background: linear-gradient(135deg, #ffd23f 0%, #008c4c 100%);
 }
 
 .gradient-sol-text {
-  background: linear-gradient(135deg, var(--sol-green) 0%, var(--sol-blue) 50%, var(--sol-purple) 100%);
+  background: linear-gradient(135deg, #ffd23f 0%, #008c4c 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .gradient-sol-border {
-  border-image: linear-gradient(135deg, var(--sol-green), var(--sol-purple)) 1;
+  border-image: linear-gradient(135deg, #ffd23f, #008c4c) 1;
 }
 
 .gradient-hero {
-  background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(153, 69, 255, 0.3), transparent),
-    radial-gradient(ellipse 40% 40% at 80% 60%, rgba(20, 241, 149, 0.15), transparent),
+  /* Subtle yellow+green radial glow on brand-dark background */
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 140, 76, 0.25), transparent),
+    radial-gradient(ellipse 40% 40% at 80% 60%, rgba(255, 210, 63, 0.12), transparent),
     var(--background);
 }
 
@@ -151,26 +159,26 @@ body {
 
 .card-glow-green:hover {
   box-shadow: var(--shadow-glow-green);
-  border-color: rgba(20, 241, 149, 0.3);
+  border-color: rgba(255, 210, 63, 0.35);
 }
 
 .card-glow-purple:hover {
   box-shadow: var(--shadow-glow-purple);
-  border-color: rgba(153, 69, 255, 0.3);
+  border-color: rgba(0, 140, 76, 0.35);
 }
 
 /* ─── Glow Effects ───────────────────────────────────────────────────────── */
 
 .glow-green {
-  box-shadow: 0 0 12px rgba(20, 241, 149, 0.4), 0 0 4px rgba(20, 241, 149, 0.6);
+  box-shadow: 0 0 12px rgba(255, 210, 63, 0.4), 0 0 4px rgba(255, 210, 63, 0.6);
 }
 
 .glow-purple {
-  box-shadow: 0 0 12px rgba(153, 69, 255, 0.4), 0 0 4px rgba(153, 69, 255, 0.6);
+  box-shadow: 0 0 12px rgba(0, 140, 76, 0.4), 0 0 4px rgba(0, 140, 76, 0.6);
 }
 
 .text-glow-green {
-  text-shadow: 0 0 10px rgba(20, 241, 149, 0.5);
+  text-shadow: 0 0 10px rgba(255, 210, 63, 0.5);
 }
 
 /* ─── Animations ─────────────────────────────────────────────────────────── */
@@ -266,7 +274,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--sol-purple);
+  background: var(--sol-blue);
 }
 
 /* ─── Focus Styles ───────────────────────────────────────────────────────── */

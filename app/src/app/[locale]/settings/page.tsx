@@ -92,7 +92,7 @@ export default function SettingsPage() {
                     {/* Save */}
                     <button
                         className="w-full rounded-xl py-3 font-semibold text-background transition-all hover:scale-[1.01]"
-                        style={{ background: 'linear-gradient(135deg, #14f195, #9945ff)' }}
+                        style={{ background: 'linear-gradient(135deg, #ffd23f, #008c4c)' }}
                     >
                         Save Changes
                     </button>

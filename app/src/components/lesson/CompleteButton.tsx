@@ -65,7 +65,7 @@ export function CompleteButton({ courseId, lessonId, xpReward = 50 }: CompleteBu
             onClick={handleComplete}
             disabled={loading || !publicKey}
             className="flex w-full items-center justify-center gap-2 rounded-xl py-3 font-semibold text-background transition-all hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-8"
-            style={{ background: 'linear-gradient(135deg, #14f195, #00c2ff)', boxShadow: '0 0 20px rgba(20,241,149,0.2)' }}
+            style={{ background: 'linear-gradient(135deg, #ffd23f, #008c4c)', boxShadow: '0 0 20px rgba(255,210,63,0.3)' }}
             title={!publicKey ? 'Connect wallet to mark complete' : ''}
         >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}

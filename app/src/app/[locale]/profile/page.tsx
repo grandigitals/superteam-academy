@@ -108,7 +108,7 @@ export default function ProfilePage() {
                                         <span className="font-mono text-sol-green">{value}%</span>
                                     </div>
                                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-                                        <div className="h-full rounded-full" style={{ width: `${value}%`, background: 'linear-gradient(90deg, #14f195, #9945ff)' }} />
+                                        <div className="h-full rounded-full" style={{ width: `${value}%`, background: 'linear-gradient(90deg, #ffd23f, #008c4c)' }} />
                                     </div>
                                 </div>
                             ))}

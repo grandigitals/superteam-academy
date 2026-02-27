@@ -80,7 +80,7 @@ export default async function CourseDetailPage({ params }: Props) {
                             <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
                                 <div
                                     className="h-full rounded-full transition-all"
-                                    style={{ width: `${progressPct}%`, background: 'linear-gradient(90deg, #14f195, #00c2ff)' }}
+                                    style={{ width: `${progressPct}%`, background: 'linear-gradient(90deg, #ffd23f, #008c4c)' }}
                                 />
                             </div>
                         </div>

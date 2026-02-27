@@ -27,8 +27,8 @@ export function XPBar({ xp, className, showDetails = true }: XPBarProps) {
                     className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
                     style={{
                         width: `${progress}%`,
-                        background: 'linear-gradient(90deg, #14f195, #00c2ff)',
-                        boxShadow: '0 0 8px rgba(20, 241, 149, 0.6)',
+                        background: 'linear-gradient(90deg, #ffd23f, #008c4c)',
+                        boxShadow: '0 0 8px rgba(255, 210, 63, 0.6)',
                     }}
                 />
             </div>

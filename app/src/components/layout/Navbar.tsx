@@ -9,7 +9,7 @@ import { LevelBadge } from '@/components/gamification/LevelBadge'
 import { SignInButton } from '@/components/wallet/SignInButton'
 import { useAuthStore } from '@/store/useAuthStore'
 import { deriveLevel } from '@/lib/solana/xp'
-import { BookOpen, LayoutDashboard, Trophy, Menu, X, Zap } from 'lucide-react'
+import { BookOpen, LayoutDashboard, Trophy, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 
@@ -34,15 +34,23 @@ export function Navbar() {
     ]
 
     return (
-        <header className="sticky top-0 z-50 border-b border-border backdrop-blur-xl" style={{ background: 'rgba(10,10,15,0.85)' }}>
+        <header className="sticky top-0 z-50 border-b border-border backdrop-blur-xl" style={{ background: 'rgba(15,22,17,0.9)' }}>
             <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
                 {/* Logo */}
-                <Link href="/" className="flex items-center gap-2 font-display font-bold text-lg">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-sol">
-                        <Zap className="h-4 w-4 text-background" fill="currentColor" />
-                    </div>
-                    <span className="gradient-sol-text hidden sm:block">Superteam Academy</span>
-                    <span className="gradient-sol-text sm:hidden">STA</span>
+                <Link href="/" className="flex items-center gap-2" aria-label="Superteam Brasil Academy">
+                    {/* Full logo */}
+                    <img
+                        src="/logo.png"
+                        alt="Superteam Brasil"
+                        className="hidden h-8 w-auto sm:block"
+                        style={{ imageRendering: 'auto' }}
+                    />
+                    {/* Mobile: just the ST mark portion — cropped left side */}
+                    <img
+                        src="/logo.png"
+                        alt="STB"
+                        className="block h-8 w-8 sm:hidden object-cover object-left"
+                    />
                 </Link>
 
                 {/* Desktop Nav */}

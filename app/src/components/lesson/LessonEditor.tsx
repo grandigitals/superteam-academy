@@ -134,7 +134,7 @@ export function LessonEditor({ starterCode, language, courseId, lessonId }: Less
                         <button
                             onClick={handleComplete}
                             className="rounded-lg px-4 py-2 text-sm font-semibold text-background transition-all hover:scale-105"
-                            style={{ background: 'linear-gradient(135deg, #14f195, #00c2ff)' }}
+                            style={{ background: 'linear-gradient(135deg, #ffd23f, #008c4c)' }}
                         >
                             Mark Complete ✓
                         </button>

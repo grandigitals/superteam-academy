@@ -75,7 +75,7 @@ export function EnrollButton({ courseId }: EnrollButtonProps) {
             onClick={handleEnroll}
             disabled={loading}
             className="rounded-xl px-8 py-3 font-semibold text-background transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: 'linear-gradient(135deg, #14f195, #00c2ff)', boxShadow: '0 0 20px rgba(20,241,149,0.3)' }}
+            style={{ background: 'linear-gradient(135deg, #ffd23f, #008c4c)', boxShadow: '0 0 20px rgba(255,210,63,0.3)' }}
         >
             {loading ? <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Enrolling…</span> : t('enroll')}
         </button>

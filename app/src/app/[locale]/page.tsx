@@ -83,7 +83,7 @@ export default function LandingPage() {
                         <Link
                             href="/courses"
                             className="group flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 font-semibold text-background transition-all hover:scale-105"
-                            style={{ background: 'linear-gradient(135deg, #14f195, #00c2ff)', boxShadow: '0 0 30px rgba(20,241,149,0.3)' }}
+                            style={{ background: 'linear-gradient(135deg, #ffd23f, #008c4c)', boxShadow: '0 0 30px rgba(255,210,63,0.35)' }}
                         >
                             {t('hero.cta')}
                             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -188,7 +188,7 @@ export default function LandingPage() {
                     <Link
                         href="/courses"
                         className="inline-flex items-center gap-2 rounded-xl px-8 py-3.5 font-semibold text-background transition-all hover:scale-105"
-                        style={{ background: 'linear-gradient(135deg, #14f195, #9945ff)', boxShadow: '0 0 30px rgba(153,69,255,0.3)' }}
+                        style={{ background: 'linear-gradient(135deg, #ffd23f, #008c4c)', boxShadow: '0 0 30px rgba(0,140,76,0.3)' }}
                     >
                         {t('cta.button')} <ArrowRight className="h-4 w-4" />
                     </Link>

@@ -26,8 +26,8 @@ export function LevelBadge({ xp, size = 'md', className }: LevelBadgeProps) {
                 className
             )}
             style={{
-                background: 'linear-gradient(135deg, #14f195, #00c2ff)',
-                boxShadow: '0 0 12px rgba(20, 241, 149, 0.5), 0 0 4px rgba(20, 241, 149, 0.8)',
+                background: 'linear-gradient(135deg, #ffd23f, #008c4c)',
+                boxShadow: '0 0 12px rgba(255, 210, 63, 0.5), 0 0 4px rgba(255, 210, 63, 0.8)',
             }}
             aria-label={`Level ${level}`}
         >

@@ -63,7 +63,7 @@ export function CourseCard({ course, progress }: CourseCardProps) {
                         <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
                             <div
                                 className="h-full rounded-full transition-all"
-                                style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #14f195, #00c2ff)' }}
+                                style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #ffd23f, #008c4c)' }}
                             />
                         </div>
                     </div>
