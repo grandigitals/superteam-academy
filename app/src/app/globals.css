@@ -290,3 +290,112 @@ pre,
 code {
   font-family: 'Fira Code', 'JetBrains Mono', monospace;
 }
+
+/* ─── Wallet Adapter Button Overrides ────────────────────────────────────── */
+
+/* Higher specificity to override @solana/wallet-adapter-react-ui default styles */
+nav .wallet-adapter-button,
+nav .wallet-adapter-button-trigger,
+.wallet-adapter-button {
+  background-color: transparent !important;
+  background-image: linear-gradient(135deg, var(--sol-green) 0%, var(--sol-blue) 100%) !important;
+  color: var(--background) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 600 !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 0 24px !important;
+  height: 48px !important;
+  transition: all 0.2s ease-in-out !important;
+  box-shadow: 0 0 20px rgba(255, 210, 63, 0.2) !important;
+}
+
+nav .wallet-adapter-button:not([disabled]):hover,
+nav .wallet-adapter-button-trigger:not([disabled]):hover,
+.wallet-adapter-button:not([disabled]):hover {
+  transform: scale(1.05) !important;
+  box-shadow: 0 0 20px rgba(255, 210, 63, 0.4) !important;
+  background-image: linear-gradient(135deg, #ffe270 0%, #00a459 100%) !important;
+}
+
+.wallet-adapter-dropdown-list {
+  background-color: var(--background-elevated) !important;
+  background-image: none !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-card) !important;
+  padding: 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+.wallet-adapter-dropdown-list-item {
+  background-color: var(--background-surface) !important;
+  color: var(--foreground) !important;
+  font-family: var(--font-sans) !important;
+  border-radius: var(--radius) !important;
+  border: 1px solid transparent !important;
+  margin: 0 !important;
+  transition: all 0.2s ease !important;
+  justify-content: flex-start !important;
+}
+
+.wallet-adapter-dropdown-list-item:not([disabled]):hover,
+.wallet-adapter-dropdown-list-item:not([disabled]):focus {
+  background-color: rgba(255, 210, 63, 0.1) !important;
+  border-color: rgba(255, 210, 63, 0.4) !important;
+  color: var(--sol-green) !important;
+}
+
+/* Modal Specific Overrides (Mobile Responsive) */
+.wallet-adapter-modal-wrapper {
+  background-color: var(--background-elevated) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+.wallet-adapter-modal-title {
+  color: var(--foreground) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 600 !important;
+}
+
+.wallet-adapter-modal-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  padding: 0 16px 16px !important;
+}
+
+.wallet-adapter-modal-list li {
+  margin: 0 !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button {
+  background-color: var(--background-surface) !important;
+  background-image: none !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: var(--radius) !important;
+  width: 100% !important;
+  justify-content: flex-start !important;
+  box-shadow: none !important;
+  padding: 12px 20px !important;
+  height: auto !important;
+  gap: 12px !important;
+  color: var(--foreground) !important;
+}
+
+/* Ensure the span inside the button also inherits the explicit color if it was styled separately */
+.wallet-adapter-modal-list .wallet-adapter-button span {
+  color: inherit !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button:not([disabled]):hover {
+  transform: none !important;
+  background-color: rgba(255, 210, 63, 0.1) !important;
+  border-color: rgba(255, 210, 63, 0.4) !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  color: var(--sol-green) !important;
+}
