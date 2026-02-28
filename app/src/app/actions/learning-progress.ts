@@ -7,6 +7,8 @@
 
 import { createLearningProgressService } from '@/services/factory'
 import type { CourseProgress, StreakData } from '@/services/types'
+import { getEnrollmentsAction } from './enrollment'
+import { fetchAllCourses } from '@/services/CourseService'
 
 export async function completeLessonAction(
     wallet: string,
@@ -19,9 +21,9 @@ export async function completeLessonAction(
         return { success: true, ...result }
     } catch (error) {
         console.error('[completeLessonAction]', error)
-        return { 
-            success: false, 
-            error: error instanceof Error ? error.message : 'Failed to complete lesson' 
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Failed to complete lesson'
         }
     }
 }
@@ -36,9 +38,9 @@ export async function getCourseProgressAction(
         return { progress }
     } catch (error) {
         console.error('[getCourseProgressAction]', error)
-        return { 
-            progress: null, 
-            error: error instanceof Error ? error.message : 'Failed to get progress' 
+        return {
+            progress: null,
+            error: error instanceof Error ? error.message : 'Failed to get progress'
         }
     }
 }
@@ -52,9 +54,9 @@ export async function getXPBalanceAction(
         return { xp }
     } catch (error) {
         console.error('[getXPBalanceAction]', error)
-        return { 
-            xp: 0, 
-            error: error instanceof Error ? error.message : 'Failed to get XP' 
+        return {
+            xp: 0,
+            error: error instanceof Error ? error.message : 'Failed to get XP'
         }
     }
 }
@@ -68,9 +70,55 @@ export async function getStreakDataAction(
         return { streak }
     } catch (error) {
         console.error('[getStreakDataAction]', error)
-        return { 
-            streak: null, 
-            error: error instanceof Error ? error.message : 'Failed to get streak data' 
+        return {
+            streak: null,
+            error: error instanceof Error ? error.message : 'Failed to get streak data'
         }
+    }
+}
+
+export async function getSkillsBreakdownAction(wallet: string): Promise<{ skills: Array<{ subject: string; value: number }> }> {
+    try {
+        const { enrollments } = await getEnrollmentsAction(wallet)
+        const courses = await fetchAllCourses()
+
+        const trackStats: Record<string, { xpEarned: number; maxXP: number }> = {}
+
+        // Calculate maximum possible XP per track
+        for (const course of courses) {
+            const track = (course.track || 'fundamentals').toLowerCase()
+            if (!trackStats[track]) trackStats[track] = { xpEarned: 0, maxXP: 0 }
+            trackStats[track].maxXP += course.xpReward || 0
+        }
+
+        // Add user's earned XP from their enrollments
+        for (const enrollment of (enrollments || [])) {
+            const course = courses.find((c) => c.id === enrollment.courseId || c.slug === enrollment.courseId)
+            if (course) {
+                const track = (course.track || 'fundamentals').toLowerCase()
+                if (trackStats[track]) {
+                    trackStats[track].xpEarned += enrollment.xpEarned || 0
+                }
+            }
+        }
+
+        // Format for the UI
+        const skills = Object.entries(trackStats)
+            .filter(([_, stats]) => stats.maxXP > 0)
+            .map(([trackId, stats]) => {
+                let subject = trackId.charAt(0).toUpperCase() + trackId.slice(1)
+                if (subject === 'Defi') subject = 'DeFi'
+                if (subject === 'Nft') subject = 'NFT'
+
+                const value = Math.min(100, Math.round((stats.xpEarned / stats.maxXP) * 100))
+                return { subject, value }
+            })
+            // Sort by highest value first
+            .sort((a, b) => b.value - a.value)
+
+        return { skills }
+    } catch (error) {
+        console.error('[getSkillsBreakdownAction]', error)
+        return { skills: [] }
     }
 }

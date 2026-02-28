@@ -12,15 +12,8 @@ import { useXP } from '@/hooks/useXP'
 import { createCredentialService } from '@/services/factory'
 import type { Credential } from '@/services/types'
 import { deriveLevel } from '@/lib/solana/xp'
+import { getSkillsBreakdownAction } from '@/app/actions/learning-progress'
 
-const SKILL_DATA = [
-    { subject: 'Rust', value: 65 },
-    { subject: 'Anchor', value: 45 },
-    { subject: 'Frontend', value: 80 },
-    { subject: 'Security', value: 30 },
-    { subject: 'DeFi', value: 55 },
-    { subject: 'Infrastructure', value: 40 },
-]
 
 export default function ProfilePage() {
     const { publicKey } = useWallet()
@@ -28,6 +21,8 @@ export default function ProfilePage() {
     const { refreshXP } = useXP()
     const [credentials, setCredentials] = useState<Credential[]>([])
     const [loadingCreds, setLoadingCreds] = useState(true)
+    const [skills, setSkills] = useState<Array<{ subject: string; value: number }>>([])
+    const [loadingSkills, setLoadingSkills] = useState(true)
 
     const displayName = user?.displayName ?? (publicKey ? `${publicKey.toBase58().slice(0, 8)}…` : 'Learner')
     const initials = displayName[0]?.toUpperCase() ?? '?'
@@ -38,11 +33,21 @@ export default function ProfilePage() {
         const wallet = publicKey.toBase58()
 
         refreshXP()
-        createCredentialService()
-            .getCredentials(wallet)
-            .then(setCredentials)
+
+        Promise.all([
+            createCredentialService().getCredentials(wallet),
+            getSkillsBreakdownAction(wallet)
+        ])
+            .then(([creds, skillsRes]) => {
+                setCredentials(creds)
+                setSkills(skillsRes.skills || [])
+            })
             .catch(console.warn)
-            .finally(() => setLoadingCreds(false))
+            .finally(() => {
+                setLoadingCreds(false)
+                setLoadingSkills(false)
+            })
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [publicKey, isAuthenticated])
 
@@ -101,19 +106,32 @@ export default function ProfilePage() {
                     {/* Skills */}
                     <div className="card-glass rounded-2xl p-6">
                         <h2 className="mb-4 font-display text-lg font-bold">Skills Breakdown</h2>
-                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                            {SKILL_DATA.map(({ subject, value }) => (
-                                <div key={subject} className="rounded-xl border border-border bg-white/5 p-3">
-                                    <div className="mb-1 flex justify-between text-xs">
-                                        <span className="text-foreground-muted">{subject}</span>
-                                        <span className="font-mono text-sol-green">{value}%</span>
+
+                        {loadingSkills ? (
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="animate-pulse rounded-xl border border-border bg-white/5 h-16" />
+                                ))}
+                            </div>
+                        ) : skills.length === 0 ? (
+                            <div className="flex h-24 items-center justify-center rounded-xl border border-border bg-white/5 text-sm text-foreground-muted">
+                                Enroll in courses to start tracking your skills!
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                {skills.map(({ subject, value }) => (
+                                    <div key={subject} className="rounded-xl border border-border bg-white/5 p-3">
+                                        <div className="mb-1 flex justify-between text-xs">
+                                            <span className="text-foreground-muted">{subject}</span>
+                                            <span className="font-mono text-sol-green">{value}%</span>
+                                        </div>
+                                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                                            <div className="h-full rounded-full" style={{ width: `${value}%`, background: 'linear-gradient(90deg, #ffd23f, #008c4c)' }} />
+                                        </div>
                                     </div>
-                                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-                                        <div className="h-full rounded-full" style={{ width: `${value}%`, background: 'linear-gradient(90deg, #ffd23f, #008c4c)' }} />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Credentials */}
