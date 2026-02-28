@@ -17,7 +17,7 @@
 | Interactive Monaco code editor for coding challenges | ✅ |
 | Gamification: XP, levels, streaks, achievements | ✅ |
 | Sign-In With Solana (SIWS) — no passwords | ✅ |
-| On-chain credential NFTs via Metaplex Core | 🔧 Devnet |
+| On-chain credential NFTs via Metaplex Core | ✅ |
 | Sanity CMS for course/lesson content | ✅ |
 | Multilingual: English 🇺🇸, Português 🇧🇷, Español 🇪🇸 | ✅ |
 | Dark-mode first with Solana brand design system | ✅ |
@@ -26,6 +26,19 @@
 ---
 
 ## 🏗 Architecture
+
+```
+superteam-academy/
+├── app/                        # Next.js Frontend (React)
+│   ├── src/                    # UI code, hooks, providers
+│   └── src/services/           # Data layer (Mock vs OnChain implementations)
+├── backend/                    # Express + Node.js Signer Service
+│   └── src/                    # complete_lesson, issue_credential transaction signers
+├── docs/                       # Specifications (SPEC.md, INTEGRATION.md, etc.)
+└── onchain-academy/            # Anchor Smart Contract (Rust)
+```
+
+### Frontend Architecture
 
 ```
 app/
@@ -76,12 +89,24 @@ app/
 
 ## 🚀 Quick Start
 
+### 1. Backend Service
+The backend service holds the platform's signer keypair to mint XP and issue credentials securely.
+
 ```bash
-git clone https://github.com/solanabr/superteam-academy.git
-cd superteam-academy/app
+cd backend
+npm install
+cp .env.example .env      # Fill in BACKEND_SIGNER_KEYPAIR & HELIUS_RPC_URL
+npm run dev               # Starts on http://localhost:4000
+```
+
+### 2. Frontend Web App
+The Next.js App Router application.
+
+```bash
+cd app
 pnpm install
-cp .env.local.example .env.local  # fill in your values
-pnpm dev
+cp .env.local.example .env.local  # Set NEXT_PUBLIC_SERVICE_MODE=onchain
+pnpm dev                          # Starts on http://localhost:3000
 ```
 
 Open [http://localhost:3000](http://localhost:3000) — redirects to `/en`.

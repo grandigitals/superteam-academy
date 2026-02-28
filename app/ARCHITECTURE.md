@@ -16,26 +16,21 @@ app/src/
 │   ├── [locale]/           # next-intl dynamic segment for i18n
 │   └── api/                # Next.js Serverless API endpoints
 ├── components/             # Reusable UI Components
-│   ├── courses/            # Course/Lesson related UI
-│   ├── gamification/       # XP Bars, Badges, Level visuals
-│   ├── layout/             # Navbar, Footer, Providers
-│   ├── leaderboard/        # Leaderboard table
-│   ├── lesson/             # Monaco Editor and challenge UI
-│   └── wallet/             # Solana wallet connection components
 ├── hooks/                  # Custom React Hooks
-│   ├── useXP.ts            # Fetches and syncs user XP globally
+│   ├── useXP.ts            # Fetches user XP from Token-2022 ATA via backend
 │   └── useSignIn.ts        # Manage Sign-In With Solana (SIWS)
 ├── i18n/                   # Internationalization config (next-intl)
 ├── lib/                    # Utility Functions and Configurations
-│   ├── solana/             # SPL Token fetching, SIWS crypto tools
+│   ├── solana/             # SPL Token fetching, SIWS crypto tools, Anchor Program client
 │   ├── sanity/             # CMS client setup and queries
 │   └── supabase/           # Supabase Admin client
 ├── services/               # 🧠 THE DATA LAYER (Crucial Concept)
 │   ├── interfaces.ts       # TypeScript interfaces for all services
 │   ├── types.ts            # Shared domain model types
-│   ├── factory.ts          # Swaps between Mock and Production implementations
+│   ├── factory.ts          # Swaps between Mock, Supabase, and On-Chain implementations
 │   ├── mock/               # Hardcoded data for local UI development
-│   └── onchain/            # Production implementations (Supabase + RPCs)
+│   ├── supabase/           # Supabase implementations (used for Streaks)
+│   └── onchain/            # Production implementations (Anchor PDAs, Helius DAS, backend API)
 └── store/                  # Global State (Zustand)
     └── useAuthStore.ts     # Holds session, wallet, and cached XP data
 ```
@@ -61,21 +56,24 @@ We define strict TypeScript interfaces in `services/interfaces.ts`:
 
 Components call `createCourseService()`, which checks the `NEXT_PUBLIC_SERVICE_MODE` environment variable. 
 - If `"mock"`, it returns the implementations from `services/mock/`.
-- If `"onchain"`, it returns the implementations from `services/onchain/`.
+- If `"supabase"`, it returns purely database-driven implementations.
+- If `"onchain"`, it returns fully integrated `services/onchain/` implementations (talking to the Solana RPC and the Express `backend/` service).
 
 ---
 
-## 🔒 Security & Server Actions
+## 🔒 Security & Backend Transactions
 
-**Rule #2: Client Components cannot bypass Supabase Row Level Security (RLS).**
+**Rule #2: The Frontend does not hold the platform authority.**
 
-For operations that write to the database (like enrolling in a course or claiming XP), doing it directly from a Client Component using the `SUPABASE_ANON_KEY` will result in a silent failure due to RLS policies.
+For operations that require the platform to mint XP or issue Metaplex Core credentials (like finishing a lesson or completing a course), the instruction must be signed by the `backend_signer` keypair registered in the Anchor program's Config PDA.
 
-To fix this, we use Next.js **Server Actions** (`app/src/app/actions/`).
+To achieve this securely without exposing the private key to the browser:
 
 1. The user clicks "Mark Complete" in a Client Component (`LessonEditor.tsx`).
-2. The component calls the `completeLessonAction` Server Action.
-3. The Server Action uses the `SUPABASE_SERVICE_ROLE_KEY` (admin bypass) to write the XP and completion status securely to the database.
+2. The component calls `OnChainLearningProgressService.completeLesson()`.
+3. This sends an HTTP POST request to the standalone Express service (`backend/`).
+4. The backend validates the request, builds the `complete_lesson` Anchor instruction, signs it with its secured `backend_signer` keypair, and broadcasts the transaction to the Solana network.
+5. The frontend then reads the updated Token-2022 XP balance from the user's Associated Token Account (ATA) and updates the UI.
 
 ---
 
