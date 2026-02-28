@@ -18,7 +18,7 @@ const envSchema = z.object({
     // Solana
     NEXT_PUBLIC_SOLANA_RPC_URL: z.string().url().default('https://api.devnet.solana.com'),
     NEXT_PUBLIC_HELIUS_API_KEY: z.string().optional(),
-    NEXT_PUBLIC_SERVICE_MODE: z.enum(['mock', 'onchain']).default('mock'),
+    NEXT_PUBLIC_SERVICE_MODE: z.enum(['mock', 'supabase', 'onchain']).default('mock'),
 
     // Analytics
     NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),

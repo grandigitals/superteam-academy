@@ -26,10 +26,11 @@ export class SupabaseLeaderboardService implements LeaderboardService {
             since = d.toISOString()
         }
 
-        // Query xp_ledger grouped by wallet, joined to users for display_name
+        // Query xp_ledger grouped by wallet, LEFT joined to users for display_name
+        // Using left join so wallets with no users row still appear on the leaderboard
         let query = db
             .from('xp_ledger')
-            .select('wallet, amount, users!inner(display_name)')
+            .select('wallet, amount, users(display_name)')
 
         if (since) {
             query = query.gte('created_at', since)

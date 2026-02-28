@@ -48,14 +48,15 @@ export function useSignIn() {
             const signatureBytes = await signMessage(messageBytes)
             const signatureBase58 = bs58.encode(signatureBytes)
 
-            // Step 4: Verify on server
+            // Step 4: Verify on server — send the exact message that was signed
+            // (server cannot reconstruct it because it embeds a live timestamp)
             const verifyRes = await fetch('/api/auth/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     publicKey: publicKey.toBase58(),
                     signature: signatureBase58,
-                    nonce,
+                    message,
                 }),
             })
 
