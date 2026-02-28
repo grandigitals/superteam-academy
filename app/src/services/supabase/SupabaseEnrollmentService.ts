@@ -2,7 +2,10 @@
  * SupabaseEnrollmentService
  *
  * Persists course enrollments in the `enrollments` table.
- * Schema: enrollments(id, wallet, course_id, enrolled_at, completed_at, xp_earned)
+ * Schema: enrollments(id, wallet, course_id, enrolled_at, completed_at, progress_pct)
+ *
+ * IMPORTANT: The enrollments table has a FK: wallet REFERENCES users(wallet).
+ * We must upsert the user row first, otherwise enrollment inserts fail silently.
  */
 
 import { getSupabaseAdmin } from '@/lib/supabase/admin'
@@ -13,25 +16,30 @@ export class SupabaseEnrollmentService implements EnrollmentService {
     async enrollInCourse(wallet: string, courseId: string): Promise<Enrollment> {
         const db = getSupabaseAdmin()
 
-        // First, ensure user exists in users table
-        await db
+        // Step 1: Ensure user exists in users table (FK constraint requirement)
+        const { error: userError } = await db
             .from('users')
-            .upsert(
-                { wallet, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-                { onConflict: 'wallet', ignoreDuplicates: true }
-            )
+            .upsert({ wallet }, { onConflict: 'wallet', ignoreDuplicates: true })
 
-        // Try to insert enrollment
-        const { error: insertError } = await db
-            .from('enrollments')
-            .insert({ wallet, course_id: courseId, enrolled_at: new Date().toISOString() })
-
-        // If insert fails (duplicate), that's fine - user is already enrolled
-        if (insertError && !insertError.message.includes('duplicate')) {
-            console.error('[SupabaseEnrollmentService] enrollInCourse:', insertError.message)
+        if (userError) {
+            console.error('[SupabaseEnrollmentService] upsert user:', userError.message)
+            throw new Error(`Failed to create user profile: ${userError.message}`)
         }
 
-        // Always fetch the current enrollment record to return
+        // Step 2: Upsert the enrollment
+        const { error: enrollError } = await db
+            .from('enrollments')
+            .upsert(
+                { wallet, course_id: courseId, enrolled_at: new Date().toISOString() },
+                { onConflict: 'wallet,course_id', ignoreDuplicates: true }
+            )
+
+        if (enrollError) {
+            console.error('[SupabaseEnrollmentService] upsert enrollment:', enrollError.message)
+            throw new Error(`Failed to save enrollment: ${enrollError.message}`)
+        }
+
+        // Step 3: Fetch the saved enrollment row to return
         const { data, error: fetchError } = await db
             .from('enrollments')
             .select('*')
@@ -40,8 +48,7 @@ export class SupabaseEnrollmentService implements EnrollmentService {
             .single()
 
         if (fetchError || !data) {
-            console.error('[SupabaseEnrollmentService] enrollInCourse fetch:', fetchError?.message)
-            // Return a local object even if DB fetch fails — don't crash the UI
+            // Enrollment was saved (no error above), just return a local representation
             return { courseId, wallet, enrolledAt: new Date(), xpEarned: 0 }
         }
 

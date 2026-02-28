@@ -5,9 +5,9 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
 import { CheckCircle, Loader2 } from 'lucide-react'
-import { createEnrollmentService } from '@/services/factory'
 import { trackEvent } from '@/lib/analytics/posthog'
 import { toast } from 'sonner'
+import { enrollInCourseAction, isEnrolledAction } from '@/app/actions/enrollment'
 
 interface EnrollButtonProps {
     courseId: string
@@ -24,9 +24,10 @@ export function EnrollButton({ courseId }: EnrollButtonProps) {
     useEffect(() => {
         if (!publicKey) { setChecking(false); return }
 
-        const service = createEnrollmentService()
-        service.isEnrolled(publicKey.toBase58(), courseId)
-            .then(setEnrolled)
+        isEnrolledAction(publicKey.toBase58(), courseId)
+            .then(result => {
+                setEnrolled(result.enrolled)
+            })
             .catch(() => {/* ignore */ })
             .finally(() => setChecking(false))
     }, [publicKey, courseId])
@@ -35,11 +36,14 @@ export function EnrollButton({ courseId }: EnrollButtonProps) {
         if (!publicKey) return
         setLoading(true)
         try {
-            const service = createEnrollmentService()
-            await service.enrollInCourse(publicKey.toBase58(), courseId)
-            setEnrolled(true)
-            trackEvent('course_enrolled', { courseId })
-            toast.success('Enrolled! Start your first lesson.', { icon: '🎉' })
+            const result = await enrollInCourseAction(publicKey.toBase58(), courseId)
+            if (result.success) {
+                setEnrolled(true)
+                trackEvent('course_enrolled', { courseId })
+                toast.success('Enrolled! Start your first lesson.', { icon: '🎉' })
+            } else {
+                toast.error(result.error || 'Failed to enroll. Please try again.')
+            }
         } catch {
             toast.error('Failed to enroll. Please try again.')
         } finally {

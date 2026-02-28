@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { cn } from '@/lib/utils'
@@ -25,6 +25,7 @@ export function Navbar() {
     const { connected } = useWallet()
     const { isAuthenticated, xp } = useAuthStore()
     const pathname = usePathname()
+    const locale = useLocale()
     const [mobileOpen, setMobileOpen] = useState(false)
     const level = deriveLevel(xp)
 
@@ -82,16 +83,23 @@ export function Navbar() {
                 <div className="flex items-center gap-2">
                     {/* Language switcher */}
                     <div className="hidden items-center gap-1 md:flex">
-                        {LOCALES.map(({ code, label, flag }) => (
-                            <Link
-                                key={code}
-                                href={`/${code}${pathname?.replace(/^\/(en|pt-BR|es)/, '') ?? ''}`}
-                                className="rounded px-1.5 py-0.5 text-xs font-mono text-foreground-muted transition-colors hover:text-sol-green"
-                                title={flag}
-                            >
-                                {label}
-                            </Link>
-                        ))}
+                        {LOCALES.map(({ code, label, flag }) => {
+                            // Remove current locale prefix and add new one
+                            const currentPath = pathname?.replace(/^\/(en|pt-BR|es)/, '') || '/'
+                            return (
+                                <Link
+                                    key={code}
+                                    href={`/${code}${currentPath}`}
+                                    className={cn(
+                                        "rounded px-1.5 py-0.5 text-xs font-mono transition-colors",
+                                        locale === code ? "text-sol-green font-bold" : "text-foreground-muted hover:text-sol-green"
+                                    )}
+                                    title={flag}
+                                >
+                                    {label}
+                                </Link>
+                            )
+                        })}
                     </div>
 
                     {/* Level badge — only when authenticated */}
@@ -137,17 +145,23 @@ export function Navbar() {
                         ))}
                         {/* Language switcher — mobile */}
                         <div className="flex gap-2 px-3 py-2 border-t border-border mt-1 pt-3">
-                            {LOCALES.map(({ code, label, flag }) => (
-                                <Link
-                                    key={code}
-                                    href={`/${code}${pathname?.replace(/^\/(en|pt-BR|es)/, '') ?? ''}`}
-                                    className="text-xs font-mono text-foreground-muted hover:text-sol-green"
-                                    title={flag}
-                                    onClick={() => setMobileOpen(false)}
-                                >
-                                    {label}
-                                </Link>
-                            ))}
+                            {LOCALES.map(({ code, label, flag }) => {
+                                const currentPath = pathname?.replace(/^\/(en|pt-BR|es)/, '') || '/'
+                                return (
+                                    <Link
+                                        key={code}
+                                        href={`/${code}${currentPath}`}
+                                        className={cn(
+                                            "text-xs font-mono transition-colors",
+                                            locale === code ? "text-sol-green font-bold" : "text-foreground-muted hover:text-sol-green"
+                                        )}
+                                        title={flag}
+                                        onClick={() => setMobileOpen(false)}
+                                    >
+                                        {label}
+                                    </Link>
+                                )
+                            })}
                         </div>
                     </div>
                 </div>

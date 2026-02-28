@@ -5,10 +5,10 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { useTranslations } from 'next-intl'
 import { CheckCircle, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { createLearningProgressService } from '@/services/factory'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useXP } from '@/hooks/useXP'
 import { trackEvent } from '@/lib/analytics/posthog'
+import { completeLessonAction } from '@/app/actions/learning-progress'
 
 interface CompleteButtonProps {
     courseId: string
@@ -28,25 +28,28 @@ export function CompleteButton({ courseId, lessonId, xpReward = 50 }: CompleteBu
         if (!publicKey) return
         setLoading(true)
         try {
-            const service = createLearningProgressService()
             // Parse numeric index from lesson ID (e.g. "l3" → index 2)
             const match = lessonId.match(/\d+/)
             const lessonIndex = match ? parseInt(match[0], 10) - 1 : 0
 
-            const { xpEarned, totalXP } = await service.completeLesson(
+            const result = await completeLessonAction(
                 publicKey.toBase58(),
                 courseId,
                 lessonIndex
             )
 
-            setDone(true)
-            // Update XP in store immediately for instant UI feedback
-            setXP(totalXP)
-            trackEvent('lesson_completed', { courseId, lessonId, xpEarned })
-            toast.success(`+${xpEarned} XP earned!`, { icon: '⚡', duration: 3000 })
+            if (result.success) {
+                setDone(true)
+                // Update XP in store immediately for instant UI feedback
+                setXP(result.totalXP ?? 0)
+                trackEvent('lesson_completed', { courseId, lessonId, xpEarned: result.xpEarned ?? 0 })
+                toast.success(`+${result.xpEarned ?? 0} XP earned!`, { icon: '⚡', duration: 3000 })
 
-            // Then re-fetch from source to ensure accuracy
-            await refreshXP()
+                // Then re-fetch from source to ensure accuracy
+                await refreshXP()
+            } else {
+                toast.error(result.error || 'Failed to record completion')
+            }
         } catch {
             toast.error('Failed to record completion')
         } finally {
