@@ -64,7 +64,7 @@ export default function LandingPage() {
                     {/* Badge */}
                     <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-sol-green/30 bg-sol-green/10 px-4 py-1.5 text-xs font-medium text-sol-green sm:text-sm">
                         <Zap className="h-3.5 w-3.5 flex-shrink-0" fill="currentColor" />
-                        Built for the Solana Ecosystem
+                        {t('hero.builtFor')}
                     </div>
 
                     {/* Hero title — smaller on mobile, huge on desktop */}
@@ -75,7 +75,7 @@ export default function LandingPage() {
                     </h1>
 
                     <p className="mx-auto mb-8 max-w-2xl text-base text-foreground-muted sm:text-lg">
-                        The most comprehensive learning platform for Solana blockchain development. Interactive coding challenges, on-chain credentials, and gamified progression.
+                        {t('hero.description')}
                     </p>
 
                     {/* CTA buttons — stacked on mobile, row on sm+ */}
@@ -93,7 +93,7 @@ export default function LandingPage() {
                             target="_blank"
                             className="flex items-center justify-center gap-2 rounded-xl border border-border px-8 py-3.5 font-medium text-foreground-muted transition-all hover:border-border-strong hover:text-foreground"
                         >
-                            View on GitHub
+                            {t('hero.github')}
                         </Link>
                     </div>
 
@@ -113,7 +113,7 @@ export default function LandingPage() {
             <section className="px-4 py-16 sm:py-20">
                 <div className="mx-auto max-w-7xl">
                     <h2 className="mb-10 text-center font-display text-2xl font-bold sm:text-4xl">
-                        Why <span className="gradient-sol-text">Superteam Academy?</span>
+                        {t('features.whyTitle')}
                     </h2>
                     {/* 2 cols on mobile, 4 on lg */}
                     <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
@@ -144,12 +144,12 @@ export default function LandingPage() {
                     <div className="mb-8 flex items-end justify-between sm:mb-12">
                         <div>
                             <h2 className="font-display text-2xl font-bold sm:text-4xl">
-                                Learning <span className="gradient-sol-text">Paths</span>
+                                {t('paths.title')}
                             </h2>
-                            <p className="mt-2 text-sm text-foreground-muted sm:text-base">Structured tracks for every developer level</p>
+                            <p className="mt-2 text-sm text-foreground-muted sm:text-base">{t('paths.subtitle')}</p>
                         </div>
                         <Link href="/courses" className="flex items-center gap-1 text-sm text-sol-green hover:underline whitespace-nowrap ml-4">
-                            View all <ChevronRight className="h-4 w-4" />
+                            {t('paths.viewAll')} <ChevronRight className="h-4 w-4" />
                         </Link>
                     </div>
 
@@ -171,7 +171,7 @@ export default function LandingPage() {
                                         <span className="flex items-center gap-1"><Code2 className="h-3.5 w-3.5" />{path.lessons} lessons</span>
                                     </div>
                                     <div className={`mt-4 flex items-center gap-1 text-sm font-medium ${path.accent} opacity-0 group-hover:opacity-100 transition-opacity`}>
-                                        Start path <ArrowRight className="h-3.5 w-3.5" />
+                                        {t('paths.start')} <ArrowRight className="h-3.5 w-3.5" />
                                     </div>
                                 </div>
                             </Link>

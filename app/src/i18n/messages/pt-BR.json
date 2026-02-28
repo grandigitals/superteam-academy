@@ -12,7 +12,10 @@
     "hero": {
       "title": "Construa na Solana.",
       "subtitle": "Aprenda. Crie. Ganhe credenciais on-chain.",
-      "cta": "Comece a Aprender Grátis",
+      "description": "A plataforma de aprendizado mais abrangente para o desenvolvimento na blockchain Solana. Desafios interativos de código, credenciais on-chain e progressão gamificada.",
+      "builtFor": "Construído para o Ecossistema Solana",
+      "github": "Ver no GitHub",
+      "cta": "Comece a Aprender de Graça",
       "stats": {
         "courses": "Cursos",
         "learners": "Aprendizes",
@@ -34,8 +37,15 @@
       },
       "gamification": {
         "title": "Aprendizado Gamificado",
-        "description": "Ganhe XP, suba de nível e mantenha streaks enquanto avança nos cursos."
-      }
+        "description": "Ganhe XP, suba de nível e mantenha sequências enquanto progride."
+      },
+      "whyTitle": "Por que a Superteam Academy?"
+    },
+    "paths": {
+      "title": "Trilhas de Aprendizado",
+      "subtitle": "Faixas estruturadas para todos os níveis de desenvolvedor",
+      "viewAll": "Ver todas",
+      "start": "Iniciar trilha"
     },
     "cta": {
       "title": "Pronto para Construir na Solana?",
