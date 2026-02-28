@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Clock, BookOpen, Award, Users, CheckCircle, ChevronRight, ArrowLeft } from 'lucide-react'
+import { Clock, BookOpen, Award, Users, ArrowLeft } from 'lucide-react'
 import { EnrollButton } from '@/components/courses/EnrollButton'
+import { CourseContentClient } from '@/components/courses/CourseContentClient'
 import { fetchCourseBySlug } from '@/services/CourseService'
 
 interface Props {
@@ -90,57 +91,17 @@ export default async function CourseDetailPage({ params }: Props) {
                 </div>
 
                 {/* Course Content */}
-                <div className="space-y-4">
-                    <h2 className="font-display text-xl font-bold">Course Content</h2>
-
-                    {modules.length === 0 ? (
-                        /* No modules from CMS yet — show a placeholder lesson list */
+                {modules.length === 0 ? (
+                    <div className="space-y-4">
+                        <h2 className="font-display text-xl font-bold">Course Content</h2>
                         <div className="rounded-2xl border border-border bg-background-surface p-6 text-center text-foreground-muted">
                             <BookOpen className="mx-auto mb-3 h-8 w-8 opacity-40" />
                             <p className="text-sm">Course content is being prepared. Check back soon!</p>
                         </div>
-                    ) : (
-                        modules.map((module, mi) => (
-                            <div key={module.id} className="rounded-2xl border border-border bg-background-surface overflow-hidden">
-                                <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-                                    <h3 className="font-semibold text-foreground">
-                                        Module {mi + 1}: {module.title}
-                                    </h3>
-                                    <span className="text-xs text-foreground-subtle">{module.lessons.length} lessons</span>
-                                </div>
-                                <ul className="divide-y divide-border">
-                                    {module.lessons.map((lesson) => (
-                                        <li key={lesson.id}>
-                                            <Link
-                                                href={`/courses/${slug}/lessons/${lesson.id}`}
-                                                className="flex items-center gap-3 px-5 py-3.5 text-sm transition-colors hover:bg-white/5 group"
-                                            >
-                                                <div className="h-4 w-4 flex-shrink-0 rounded-full border border-border-strong" />
-                                                <span className="flex-1 text-foreground group-hover:text-sol-green transition-colors">
-                                                    {lesson.title}
-                                                </span>
-                                                {lesson.type === 'challenge' && (
-                                                    <span className="rounded border border-sol-purple/30 bg-sol-purple/10 px-2 py-0.5 text-xs text-sol-purple">
-                                                        Challenge
-                                                    </span>
-                                                )}
-                                                {lesson.type === 'quiz' && (
-                                                    <span className="rounded border border-sol-blue/30 bg-sol-blue/10 px-2 py-0.5 text-xs text-sol-blue">
-                                                        Quiz
-                                                    </span>
-                                                )}
-                                                <span className="flex items-center gap-0.5 text-xs text-xp-gold">
-                                                    <Award className="h-3 w-3" />{lesson.xpReward}
-                                                </span>
-                                                <ChevronRight className="h-3.5 w-3.5 text-foreground-subtle opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        ))
-                    )}
-                </div>
+                    </div>
+                ) : (
+                    <CourseContentClient courseId={course.id} slug={slug} modules={modules} />
+                )}
             </div>
         </div>
     )
