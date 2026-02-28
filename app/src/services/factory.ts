@@ -6,7 +6,7 @@ import {
     MockLeaderboardService,
     MockUserProfileService,
 } from './mock/MockServices'
-import { OnChainLearningProgressService } from './onchain/OnChainServices'
+import { OnChainLearningProgressService, OnChainCredentialService } from './onchain/OnChainServices'
 import { SupabaseEnrollmentService } from './supabase/SupabaseEnrollmentService'
 import { SupabaseLearningProgressService } from './supabase/SupabaseLearningProgressService'
 import { SupabaseLeaderboardService } from './supabase/SupabaseLeaderboardService'
@@ -27,7 +27,7 @@ const SOLANA_RPC_URL = process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? 'https://api.de
  *
  *   mock     → in-memory stubs (default, works with no env vars)
  *   supabase → real Supabase DB (needs NEXT_PUBLIC_SUPABASE_URL + keys)
- *   onchain  → SPL token XP + Helius DAS credentials + Supabase for progress
+ *   onchain  → SPL Token-2022 XP + Helius DAS credentials + backend signer
  */
 function getServiceMode(): string {
     return process.env.NEXT_PUBLIC_SERVICE_MODE ?? 'mock'
@@ -39,6 +39,7 @@ function isSupabaseMode(): boolean {
 
 export function createLearningProgressService(): LearningProgressService {
     if (getServiceMode() === 'onchain') {
+        // Real on-chain: XP from Token-2022 ATA, progress from Enrollment PDAs via backend
         return new OnChainLearningProgressService(SOLANA_RPC_URL)
     }
     if (isSupabaseMode()) {
@@ -59,6 +60,10 @@ export function createAchievementService(): AchievementService {
 }
 
 export function createCredentialService(): CredentialService {
+    if (getServiceMode() === 'onchain') {
+        // Real credentials: Metaplex Core NFTs queried via backend → Helius DAS
+        return new OnChainCredentialService()
+    }
     if (isSupabaseMode()) {
         return new SupabaseCredentialService()
     }

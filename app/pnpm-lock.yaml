@@ -59,9 +59,15 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.90.21
         version: 5.90.21(react@19.2.3)
+      '@types/bn.js':
+        specifier: ^5.2.0
+        version: 5.2.0
       '@types/bs58':
         specifier: ^5.0.0
         version: 5.0.0
+      bn.js:
+        specifier: ^5.2.3
+        version: 5.2.3
       bs58:
         specifier: ^6.0.0
         version: 6.0.0
@@ -5169,6 +5175,9 @@ packages:
 
   '@types/babel__traverse@7.28.0':
     resolution: {integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==}
+
+  '@types/bn.js@5.2.0':
+    resolution: {integrity: sha512-DLbJ1BPqxvQhIGbeu8VbUC1DiAiahHtAYvA0ZEAa4P31F7IaArc8z3C3BRQdWX4mtLQuABG4yzp76ZrS02Ui1Q==}
 
   '@types/bs58@5.0.0':
     resolution: {integrity: sha512-cAw/jKBzo98m6Xz1X5ETqymWfIMbXbu6nK15W4LQYjeHJkVqSmM5PO8Bd9KVHQJ/F4rHcSso9LcjtgCW6TGu2w==}
@@ -17663,6 +17672,10 @@ snapshots:
   '@types/babel__traverse@7.28.0':
     dependencies:
       '@babel/types': 7.29.0
+
+  '@types/bn.js@5.2.0':
+    dependencies:
+      '@types/node': 20.19.34
 
   '@types/bs58@5.0.0':
     dependencies:
