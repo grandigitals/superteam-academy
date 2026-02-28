@@ -13,18 +13,35 @@ export class SupabaseEnrollmentService implements EnrollmentService {
     async enrollInCourse(wallet: string, courseId: string): Promise<Enrollment> {
         const db = getSupabaseAdmin()
 
-        const { data, error } = await db
-            .from('enrollments')
+        // First, ensure user exists in users table
+        await db
+            .from('users')
             .upsert(
-                { wallet, course_id: courseId, enrolled_at: new Date().toISOString() },
-                { onConflict: 'wallet,course_id', ignoreDuplicates: true }
+                { wallet, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+                { onConflict: 'wallet', ignoreDuplicates: true }
             )
-            .select()
+
+        // Try to insert enrollment
+        const { error: insertError } = await db
+            .from('enrollments')
+            .insert({ wallet, course_id: courseId, enrolled_at: new Date().toISOString() })
+
+        // If insert fails (duplicate), that's fine - user is already enrolled
+        if (insertError && !insertError.message.includes('duplicate')) {
+            console.error('[SupabaseEnrollmentService] enrollInCourse:', insertError.message)
+        }
+
+        // Always fetch the current enrollment record to return
+        const { data, error: fetchError } = await db
+            .from('enrollments')
+            .select('*')
+            .eq('wallet', wallet)
+            .eq('course_id', courseId)
             .single()
 
-        if (error) {
-            console.error('[SupabaseEnrollmentService] enrollInCourse:', error.message)
-            // Return a local object even if DB write fails — don't crash the UI
+        if (fetchError || !data) {
+            console.error('[SupabaseEnrollmentService] enrollInCourse fetch:', fetchError?.message)
+            // Return a local object even if DB fetch fails — don't crash the UI
             return { courseId, wallet, enrolledAt: new Date(), xpEarned: 0 }
         }
 

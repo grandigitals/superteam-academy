@@ -20,27 +20,97 @@ export class SupabaseLearningProgressService implements LearningProgressService 
         const db = getSupabaseAdmin()
         const XP_PER_LESSON = 50
 
-        // Idempotent insert — ignore if already completed
-        await db.from('lesson_completions').upsert(
-            { wallet, course_id: courseId, lesson_index: lessonIndex, completed_at: new Date().toISOString() },
-            { onConflict: 'wallet,course_id,lesson_index', ignoreDuplicates: true }
-        )
+        // Ensure user exists
+        await db
+            .from('users')
+            .upsert(
+                { wallet, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+                { onConflict: 'wallet', ignoreDuplicates: true }
+            )
 
-        // Insert XP ledger entry (idempotent via same unique constraint)
-        await db.from('xp_ledger').upsert(
-            {
+        // Check if already completed
+        const { data: existing } = await db
+            .from('lesson_completions')
+            .select('id')
+            .eq('wallet', wallet)
+            .eq('course_id', courseId)
+            .eq('lesson_index', lessonIndex)
+            .single()
+
+        const isNewCompletion = !existing
+
+        // Insert completion record
+        if (isNewCompletion) {
+            await db.from('lesson_completions').insert({
+                wallet,
+                course_id: courseId,
+                lesson_index: lessonIndex,
+                completed_at: new Date().toISOString(),
+            })
+
+            // Insert XP ledger entry
+            await db.from('xp_ledger').insert({
                 wallet,
                 amount: XP_PER_LESSON,
                 reason: 'lesson_complete',
                 course_id: courseId,
                 lesson_index: lessonIndex,
                 created_at: new Date().toISOString(),
-            },
-            { onConflict: 'wallet,course_id,lesson_index', ignoreDuplicates: true }
-        )
+            })
+
+            // Update streak
+            await this.updateStreak(wallet)
+        }
 
         const totalXP = await this.getXPBalance(wallet)
-        return { xpEarned: XP_PER_LESSON, totalXP }
+        return { xpEarned: isNewCompletion ? XP_PER_LESSON : 0, totalXP }
+    }
+
+    private async updateStreak(wallet: string): Promise<void> {
+        const db = getSupabaseAdmin()
+        const today = new Date().toISOString().split('T')[0]
+
+        // Get current streak data
+        const { data: streakData } = await db
+            .from('streaks')
+            .select('*')
+            .eq('wallet', wallet)
+            .single()
+
+        const lastActive = streakData?.last_active || null
+        const current = streakData?.current || 0
+        const longest = streakData?.longest || 0
+
+        let newCurrent = current
+        let newLongest = longest
+
+        if (!lastActive || lastActive !== today) {
+            // Check if yesterday
+            const yesterday = new Date()
+            yesterday.setDate(yesterday.getDate() - 1)
+            const yesterdayStr = yesterday.toISOString().split('T')[0]
+
+            if (lastActive === yesterdayStr) {
+                // Continue streak
+                newCurrent = current + 1
+            } else {
+                // Streak broken, start new
+                newCurrent = 1
+            }
+
+            newLongest = Math.max(newLongest, newCurrent)
+
+            // Upsert streak record
+            await db
+                .from('streaks')
+                .upsert({
+                    wallet,
+                    current: newCurrent,
+                    longest: newLongest,
+                    last_active: today,
+                    updated_at: new Date().toISOString(),
+                })
+        }
     }
 
     async getCourseProgress(wallet: string, courseId: string): Promise<CourseProgress | null> {
@@ -123,54 +193,48 @@ export class SupabaseLearningProgressService implements LearningProgressService 
     async getStreakData(wallet: string): Promise<StreakData> {
         const db = getSupabaseAdmin()
 
-        // Get last 30 days of activity
-        const since = new Date()
-        since.setDate(since.getDate() - 30)
-
-        const { data } = await db
-            .from('lesson_completions')
-            .select('completed_at')
+        // Get streak record from database
+        const { data: streakRecord } = await db
+            .from('streaks')
+            .select('*')
             .eq('wallet', wallet)
-            .gte('completed_at', since.toISOString())
-            .order('completed_at', { ascending: false })
+            .single()
 
-        const activeDates = new Set(
-            (data as Record<string, unknown>[] ?? []).map(r =>
-                new Date(String(r.completed_at)).toISOString().split('T')[0]
-            )
-        )
+        const currentStreak = streakRecord?.current || 0
+        const longestStreak = streakRecord?.longest || 0
+        const lastActive = streakRecord?.last_active ? new Date(streakRecord.last_active) : null
 
-        // Build 7-day history
+        // Get last 7 days of activity for history
         const history: StreakDay[] = Array.from({ length: 7 }, (_, i) => {
             const d = new Date()
             d.setDate(d.getDate() - (6 - i))
             const dateStr = d.toISOString().split('T')[0] ?? ''
-            return { date: dateStr, completed: activeDates.has(dateStr) }
+            return { date: dateStr, completed: false }
         })
 
-        // Calculate current streak
-        let currentStreak = 0
-        let longestStreak = 0
-        let checking = new Date()
-        let tempStreak = 0
+        // Query lesson completions for last 7 days
+        const since = new Date()
+        since.setDate(since.getDate() - 7)
 
-        for (let i = 0; i < 365; i++) {
-            const dateStr = checking.toISOString().split('T')[0] ?? ''
-            if (activeDates.has(dateStr)) {
-                tempStreak++
-                currentStreak = i === 0 ? tempStreak : currentStreak
-                longestStreak = Math.max(longestStreak, tempStreak)
-            } else {
-                if (i === 0) currentStreak = 0
-                break
+        const { data: completions } = await db
+            .from('lesson_completions')
+            .select('completed_at')
+            .eq('wallet', wallet)
+            .gte('completed_at', since.toISOString())
+
+        const activeDates = new Set(
+            (completions as Record<string, unknown>[] ?? []).map(r =>
+                new Date(String(r.completed_at)).toISOString().split('T')[0]
+            )
+        )
+
+        // Mark completed days in history
+        history.forEach(day => {
+            if (activeDates.has(day.date)) {
+                day.completed = true
             }
-            checking.setDate(checking.getDate() - 1)
-        }
+        })
 
-        const lastActivity = data && (data as Record<string, unknown>[]).length > 0
-            ? new Date(String((data as Record<string, unknown>[])[0]?.completed_at))
-            : null
-
-        return { currentStreak, longestStreak, lastActivity, history }
+        return { currentStreak, longestStreak, lastActivity: lastActive, history }
     }
 }
