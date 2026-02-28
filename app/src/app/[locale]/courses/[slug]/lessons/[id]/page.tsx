@@ -1,27 +1,8 @@
 import type { Metadata } from 'next'
-import { Suspense } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react'
-import dynamic from 'next/dynamic'
-
-// Heavy Monaco editor — only loaded on lesson pages, never in initial bundle
-const LessonEditor = dynamic(
-    () => import('@/components/lesson/LessonEditor').then(m => m.LessonEditor),
-    {
-        ssr: false,
-        loading: () => (
-            <div className="flex h-full items-center justify-center bg-background-surface">
-                <Loader2 className="h-6 w-6 animate-spin text-sol-green" />
-                <span className="ml-2 text-sm text-foreground-muted">Loading editor…</span>
-            </div>
-        ),
-    }
-)
-
-const CompleteButton = dynamic(
-    () => import('@/components/lesson/CompleteButton').then(m => m.CompleteButton),
-    { ssr: false }
-)
+import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { LessonEditor } from '@/components/lesson/LessonEditor'
+import { CompleteButton } from '@/components/lesson/CompleteButton'
 
 interface Props {
     params: Promise<{ locale: string; slug: string; id: string }>
