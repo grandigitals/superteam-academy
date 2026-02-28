@@ -10,7 +10,7 @@ import { LevelBadge } from '@/components/gamification/LevelBadge'
 import { SignInButton } from '@/components/wallet/SignInButton'
 import { useAuthStore } from '@/store/useAuthStore'
 import { deriveLevel } from '@/lib/solana/xp'
-import { BookOpen, LayoutDashboard, Trophy, Menu, X } from 'lucide-react'
+import { BookOpen, LayoutDashboard, Trophy, Menu, X, Settings } from 'lucide-react'
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 
@@ -32,7 +32,10 @@ export function Navbar() {
     const navLinks = [
         { href: '/courses', label: t('courses'), icon: BookOpen },
         { href: '/leaderboard', label: t('leaderboard'), icon: Trophy },
-        ...(connected ? [{ href: '/dashboard', label: t('dashboard'), icon: LayoutDashboard }] : []),
+        ...(connected ? [
+            { href: '/dashboard', label: t('dashboard'), icon: LayoutDashboard },
+            { href: '/settings', label: t('settings'), icon: Settings }
+        ] : []),
     ]
 
     return (
