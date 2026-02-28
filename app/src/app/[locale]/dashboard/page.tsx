@@ -10,7 +10,8 @@ import { CourseGrid } from '@/components/courses/CourseGrid'
 import { WalletGate } from '@/components/wallet/WalletGate'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useXP } from '@/hooks/useXP'
-import { createEnrollmentService, createLearningProgressService } from '@/services/factory'
+import { getEnrollmentsAction } from '@/app/actions/enrollment'
+import { getStreakDataAction } from '@/app/actions/learning-progress'
 import type { Enrollment } from '@/services/types'
 import type { StreakData } from '@/services/types'
 import { MOCK_COURSES } from '@/services/CourseService'
@@ -35,12 +36,12 @@ export default function DashboardPage() {
         const wallet = publicKey.toBase58()
 
         Promise.all([
-            createEnrollmentService().getEnrollments(wallet),
-            createLearningProgressService().getStreakData(wallet),
+            getEnrollmentsAction(wallet).then(res => res.enrollments),
+            getStreakDataAction(wallet).then(res => res.streak),
             refreshXP(),
         ]).then(([e, s]) => {
             setEnrollments(e)
-            setStreak(s)
+            setStreak(s ?? null)
         }).catch(console.warn).finally(() => setLoadingData(false))
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [publicKey, isAuthenticated])

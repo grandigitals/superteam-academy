@@ -15,7 +15,7 @@
 import { useEffect, useCallback } from 'react'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useAuthStore } from '@/store/useAuthStore'
-import { createLearningProgressService } from '@/services/factory'
+import { getXPBalanceAction } from '@/app/actions/learning-progress'
 import { getXPBalance } from '@/lib/solana/onchain'
 
 /**
@@ -44,9 +44,9 @@ export function useXP() {
             }
 
             // 2. Fall back to service layer (Supabase sum or mock in-memory)
-            const service = createLearningProgressService()
-            const xp = await service.getXPBalance(wallet)
-            setXP(xp)
+            const { xp, error } = await getXPBalanceAction(wallet)
+            if (error) console.warn('[useXP] backend error:', error)
+            setXP(xp ?? 0)
         } catch (err) {
             console.warn('[useXP] failed to fetch XP:', err)
         }

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import { Play, CheckCircle, XCircle, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { createLearningProgressService } from '@/services/factory'
+import { completeLessonAction } from '@/app/actions/learning-progress'
 import { useWallet } from '@solana/wallet-adapter-react'
 
 // Lazy-load Monaco — NOT in initial bundle (performance requirement)
@@ -71,9 +71,12 @@ export function LessonEditor({ starterCode, language, courseId, lessonId }: Less
     const handleComplete = async () => {
         if (!publicKey || !allPassed) return
         try {
-            const service = createLearningProgressService()
-            const { xpEarned } = await service.completeLesson(publicKey.toBase58(), courseId, parseInt(lessonId.slice(1), 10))
-            toast.success(`Lesson completed! +${xpEarned} XP`, { icon: '⚡' })
+            const result = await completeLessonAction(publicKey.toBase58(), courseId, parseInt(lessonId.slice(1), 10))
+            if (result.success && result.xpEarned) {
+                toast.success(`Lesson completed! +${result.xpEarned} XP`, { icon: '⚡' })
+            } else {
+                toast.error(result.error || 'Failed to record completion')
+            }
         } catch {
             toast.error('Failed to record completion')
         }
