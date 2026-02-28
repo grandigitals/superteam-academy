@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import type { Metadata } from 'next'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { LayoutDashboard, Flame, Award, BookOpen } from 'lucide-react'
@@ -132,7 +133,7 @@ export default function DashboardPage() {
                                 <BookOpen className="h-8 w-8 opacity-30" />
                                 <p className="text-sm">
                                     No courses enrolled yet.{' '}
-                                    <a href="/courses" className="text-sol-green hover:underline">Browse courses →</a>
+                                    <Link href="/courses" className="text-sol-green hover:underline">Browse courses →</Link>
                                 </p>
                             </div>
                         )}
