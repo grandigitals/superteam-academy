@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { Twitter, Github, Trophy, Award, ExternalLink } from 'lucide-react'
 import { LevelBadge } from '@/components/gamification/LevelBadge'
@@ -139,7 +140,7 @@ export default function ProfilePage() {
                                         <div className="absolute inset-0 bg-gradient-to-br from-sol-purple/20 to-sol-green/10" />
                                         <div className="relative">
                                             {c.imageUrl ? (
-                                                <img src={c.imageUrl} alt={c.trackName} className="mb-3 h-12 w-12 rounded-lg object-cover" />
+                                                <Image src={c.imageUrl} alt={c.trackName} width={48} height={48} className="mb-3 rounded-lg object-cover" />
                                             ) : (
                                                 <div className="mb-3 text-3xl">🏆</div>
                                             )}

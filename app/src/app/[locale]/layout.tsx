@@ -8,7 +8,20 @@ import { Footer } from '@/components/layout/Footer'
 import { ThemeProvider } from '@/components/layout/ThemeProvider'
 import { PostHogProvider } from '@/components/providers/PostHogProvider'
 import { Toaster } from 'sonner'
+import { JetBrains_Mono, Fira_Code } from 'next/font/google'
 import '../globals.css'
+
+const jetbrainsMono = JetBrains_Mono({
+    subsets: ['latin'],
+    variable: '--font-jetbrains-mono',
+    display: 'swap',
+})
+
+const firaCode = Fira_Code({
+    subsets: ['latin'],
+    variable: '--font-fira-code',
+    display: 'swap',
+})
 
 type SupportedLocale = 'en' | 'pt-BR' | 'es'
 
@@ -38,7 +51,7 @@ export default async function LocaleLayout({ children, params }: Props) {
                 <NextIntlClientProvider messages={messages}>
                     <SolanaProvider>
                         <Navbar />
-                        <main className="min-h-[calc(100dvh-4rem)]">
+                        <main className={`min-h-[calc(100dvh-4rem)] ${jetbrainsMono.variable} ${firaCode.variable}`}>
                             {children}
                         </main>
                         <Footer />

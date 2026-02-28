@@ -1,36 +1,134 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Superteam Academy 🚀
 
-## Getting Started
+> An open-source, interactive Learning Management System for Solana blockchain development.
+> Earn XP, complete coding challenges, and receive soulbound on-chain credentials.
 
-First, run the development server:
+[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](https://opensource.org/licenses/MIT)
+[![Built with Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org)
+[![Solana](https://img.shields.io/badge/Solana-Devnet-14F195)](https://solana.com)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## ✨ Features
+
+| Feature | Status |
+|---------|--------|
+| 10 fully-styled pages (Landing, Courses, Lessons, Dashboard, Profile, Leaderboard, Settings, Certificate) | ✅ |
+| Interactive Monaco code editor for coding challenges | ✅ |
+| Gamification: XP, levels, streaks, achievements | ✅ |
+| Sign-In With Solana (SIWS) — no passwords | ✅ |
+| On-chain credential NFTs via Metaplex Core | 🔧 Devnet |
+| Sanity CMS for course/lesson content | ✅ |
+| Multilingual: English 🇺🇸, Português 🇧🇷, Español 🇪🇸 | ✅ |
+| Dark-mode first with Solana brand design system | ✅ |
+| PostHog analytics + Sentry error tracking | ✅ |
+
+---
+
+## 🏗 Architecture
+
+```
+app/
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── [locale]/           # next-intl locale wrapper
+│   │   │   ├── page.tsx        # Landing page
+│   │   │   ├── courses/        # Course catalog + detail + lessons
+│   │   │   ├── dashboard/      # User dashboard
+│   │   │   ├── profile/        # Public profile
+│   │   │   ├── leaderboard/    # Leaderboard
+│   │   │   ├── settings/       # User settings
+│   │   │   ├── certificates/   # Certificate viewer
+│   │   │   └── studio/         # Sanity Studio (embedded)
+│   │   └── api/
+│   │       └── auth/           # SIWS nonce + verify endpoints
+│   ├── components/             # Reusable UI components
+│   │   ├── gamification/       # XPBar, LevelBadge
+│   │   ├── courses/            # CourseCard, CourseGrid, EnrollButton
+│   │   ├── lesson/             # LessonEditor (Monaco), CompleteButton
+│   │   ├── leaderboard/        # LeaderboardTable
+│   │   ├── layout/             # Navbar, Footer, ThemeProvider
+│   │   └── wallet/             # SolanaProvider, WalletGate
+│   ├── services/               # Data layer (ALL data access through here)
+│   │   ├── interfaces.ts       # Service contracts
+│   │   ├── types.ts            # Shared types
+│   │   ├── factory.ts          # Mock vs OnChain switch
+│   │   ├── mock/               # In-memory implementations
+│   │   └── onchain/            # Solana/Supabase implementations
+│   ├── lib/
+│   │   ├── solana/             # XP utils, SIWS auth, on-chain reader
+│   │   ├── sanity/             # Sanity client, GROQ queries, schemas
+│   │   ├── supabase/           # Admin client, user helpers
+│   │   └── analytics/          # PostHog provider + track()
+│   ├── store/                  # Zustand stores
+│   │   └── useAuthStore.ts     # Auth state (SIWS + XP cache)
+│   ├── hooks/                  # Custom React hooks
+│   │   └── useSignIn.ts        # SIWS sign-in flow
+│   └── i18n/                   # next-intl config + messages
+├── supabase/
+│   └── migrations/             # SQL schema (users, enrollments, xp_ledger, credentials)
+├── sanity.config.ts            # Sanity Studio config
+├── next.config.ts
+└── .env.local.example
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Quick Start
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+git clone https://github.com/solanabr/superteam-academy.git
+cd superteam-academy/app
+pnpm install
+cp .env.local.example .env.local  # fill in your values
+pnpm dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) — redirects to `/en`.
 
-To learn more about Next.js, take a look at the following resources:
+Sanity Studio is at `/en/studio` once `NEXT_PUBLIC_SANITY_PROJECT_ID` is set.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🔑 Sign-In With Solana (SIWS)
 
-## Deploy on Vercel
+1. User connects wallet (Phantom/Solflare)  
+2. App fetches one-time nonce: `GET /api/auth/nonce?publicKey=...`  
+3. Wallet signs a human-readable SIWS message  
+4. `POST /api/auth/verify` verifies ed25519 signature via `nacl`  
+5. On success: user upserted in Supabase, auth stored in Zustand  
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🎮 XP & Levels
+
+| Action | XP |
+|--------|-----|
+| Complete content lesson | 50 XP |
+| Pass coding challenge | 200–300 XP |
+| Complete course | 500–2500 XP |
+| 7-day streak | 500 XP |
+
+Level = `floor(sqrt(totalXP / 100))`
+
+---
+
+## 🌍 Internationalization
+
+| Locale | Language | Status |
+|--------|----------|--------|
+| `en` | English | ✅ |
+| `pt-BR` | Português (Brasil) | ✅ |
+| `es` | Español | ✅ |
+
+---
+
+## 🛠 Service Layer
+
+Set `NEXT_PUBLIC_SERVICE_MODE=mock` (default) for fast local dev with in-memory data, or `=onchain` for real Solana + Supabase. **Never call Supabase/Solana directly from components.**
+
+---
+
+## 📜 License
+
+MIT — open source, built for the Solana ecosystem.
