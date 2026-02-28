@@ -11,6 +11,7 @@ import { SupabaseEnrollmentService } from './supabase/SupabaseEnrollmentService'
 import { SupabaseLearningProgressService } from './supabase/SupabaseLearningProgressService'
 import { SupabaseLeaderboardService } from './supabase/SupabaseLeaderboardService'
 import { SupabaseCredentialService } from './supabase/SupabaseCredentialService'
+import { SupabaseUserProfileService } from './supabase/SupabaseUserProfileService'
 import type {
     LearningProgressService,
     EnrollmentService,
@@ -78,5 +79,8 @@ export function createLeaderboardService(): LeaderboardService {
 }
 
 export function createUserProfileService(): UserProfileService {
+    if (isSupabaseMode()) {
+        return new SupabaseUserProfileService()
+    }
     return new MockUserProfileService()
 }
