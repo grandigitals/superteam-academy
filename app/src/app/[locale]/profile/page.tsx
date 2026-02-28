@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { Twitter, Github, Trophy, Award, ExternalLink } from 'lucide-react'
+import { Twitter, Github, Trophy, Award, ExternalLink, Share2, Check } from 'lucide-react'
 import { LevelBadge } from '@/components/gamification/LevelBadge'
 import { XPBar } from '@/components/gamification/XPBar'
 import { WalletGate } from '@/components/wallet/WalletGate'
@@ -23,6 +23,7 @@ export default function ProfilePage() {
     const [loadingCreds, setLoadingCreds] = useState(true)
     const [skills, setSkills] = useState<Array<{ subject: string; value: number }>>([])
     const [loadingSkills, setLoadingSkills] = useState(true)
+    const [copied, setCopied] = useState(false)
 
     const displayName = user?.displayName ?? (publicKey ? `${publicKey.toBase58().slice(0, 8)}…` : 'Learner')
     const initials = displayName[0]?.toUpperCase() ?? '?'
@@ -51,13 +52,31 @@ export default function ProfilePage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [publicKey, isAuthenticated])
 
+    const handleShareProfile = () => {
+        if (!publicKey) return
+        const url = `${window.location.origin}/en/dev/${publicKey.toBase58()}`
+        navigator.clipboard.writeText(url)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+    }
+
     return (
         <WalletGate requireAuth message="Connect your wallet to view your profile.">
             <div className="min-h-screen px-4 py-10">
                 <div className="mx-auto max-w-4xl space-y-8">
                     {/* Profile Header */}
-                    <div className="card-glass rounded-2xl p-6 sm:p-8">
-                        <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
+                    <div className="card-glass rounded-2xl p-6 sm:p-8 relative">
+                        {/* Share Button */}
+                        <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
+                            <button
+                                onClick={handleShareProfile}
+                                className="flex items-center gap-2 rounded-lg border border-sol-green/30 bg-sol-green/10 px-3 py-1.5 text-xs font-semibold text-sol-green transition-colors hover:bg-sol-green/20"
+                            >
+                                {copied ? <Check className="h-3.5 w-3.5" /> : <Share2 className="h-3.5 w-3.5" />}
+                                {copied ? 'Copied Link' : 'Share Profile'}
+                            </button>
+                        </div>
+                        <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center mt-8 sm:mt-0">
                             {/* Avatar */}
                             <div className="relative flex-shrink-0">
                                 <div className="h-20 w-20 rounded-full border-2 border-sol-green/40 bg-gradient-to-br from-sol-purple to-sol-blue flex items-center justify-center text-3xl font-bold text-background">
