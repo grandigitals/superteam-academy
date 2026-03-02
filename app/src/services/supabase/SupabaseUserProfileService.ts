@@ -1,6 +1,6 @@
 import { UserProfileService } from '../interfaces'
 import type { UserProfile } from '../types'
-import { getUserByWallet, updateUserProfile } from '@/lib/supabase/users'
+import { getUserByWallet, updateUserProfile, getOrCreateUserProfile } from '@/lib/supabase/users'
 
 /**
  * Supabase implementation for User Profiles.
@@ -39,6 +39,10 @@ export class SupabaseUserProfileService implements UserProfileService {
             githubHandle: data.github,
         }
 
+        // Ensure the user actually exists in the database first before updating
+        await getOrCreateUserProfile(data.wallet)
+
+        // Then apply the updates
         const updatedUser = await updateUserProfile(data.wallet, updates)
 
         if (!updatedUser) {

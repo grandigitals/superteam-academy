@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { LessonEditor } from '@/components/lesson/LessonEditor'
 import { CompleteButton } from '@/components/lesson/CompleteButton'
+import { fetchCourseBySlug } from '@/services/CourseService'
 
 interface Props {
     params: Promise<{ locale: string; slug: string; id: string }>
@@ -111,6 +112,25 @@ Your task is to complete the \`transferSOL\` function that sends SOL from one ac
 
 export default async function LessonPage({ params }: Props) {
     const { slug, id } = await params
+    const course = await fetchCourseBySlug(slug)
+
+    let lessonIndex = 0
+    let found = false
+    if (course?.modules) {
+        for (const m of course.modules) {
+            for (const l of m.lessons) {
+                if (l.id === id) {
+                    found = true
+                    break
+                }
+                lessonIndex++
+            }
+            if (found) break
+        }
+    }
+    // If not found in modules, default to 0 to prevent out of bounds
+    if (!found) lessonIndex = 0
+
     const lesson = LESSON_CONTENT[id] ?? {
         title: `Lesson ${id}`,
         type: 'content',
@@ -152,7 +172,7 @@ export default async function LessonPage({ params }: Props) {
                     {/* Complete button for content lessons */}
                     {!isChallenge && (
                         <div className="sticky bottom-0 border-t border-border p-4" style={{ background: 'var(--background-elevated)' }}>
-                            <CompleteButton courseId={slug} lessonId={id} />
+                            <CompleteButton courseId={course?.id ?? slug} lessonId={id} lessonIndex={lessonIndex} />
                         </div>
                     )}
                 </div>
@@ -163,8 +183,9 @@ export default async function LessonPage({ params }: Props) {
                         <LessonEditor
                             starterCode={lesson.starterCode ?? ''}
                             language="typescript"
-                            courseId={slug}
+                            courseId={course?.id ?? slug}
                             lessonId={id}
+                            lessonIndex={lessonIndex}
                         />
                     </div>
                 )}

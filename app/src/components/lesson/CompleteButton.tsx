@@ -13,10 +13,11 @@ import { completeLessonAction } from '@/app/actions/learning-progress'
 interface CompleteButtonProps {
     courseId: string
     lessonId: string
+    lessonIndex: number
     xpReward?: number
 }
 
-export function CompleteButton({ courseId, lessonId, xpReward = 50 }: CompleteButtonProps) {
+export function CompleteButton({ courseId, lessonId, lessonIndex, xpReward = 50 }: CompleteButtonProps) {
     const { publicKey } = useWallet()
     const t = useTranslations('lesson')
     const [loading, setLoading] = useState(false)
@@ -28,9 +29,6 @@ export function CompleteButton({ courseId, lessonId, xpReward = 50 }: CompleteBu
         if (!publicKey) return
         setLoading(true)
         try {
-            // Parse numeric index from lesson ID (e.g. "l3" → index 2)
-            const match = lessonId.match(/\d+/)
-            const lessonIndex = match ? parseInt(match[0], 10) - 1 : 0
 
             const result = await completeLessonAction(
                 publicKey.toBase58(),

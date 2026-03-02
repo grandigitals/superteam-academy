@@ -28,6 +28,7 @@ interface LessonEditorProps {
     language: 'typescript' | 'rust' | 'json'
     courseId: string
     lessonId: string
+    lessonIndex: number
 }
 
 // Simulated tests for the challenge
@@ -38,7 +39,7 @@ const MOCK_TESTS: TestResult[] = [
     { name: 'Payer pays transaction fees', passed: false },
 ]
 
-export function LessonEditor({ starterCode, language, courseId, lessonId }: LessonEditorProps) {
+export function LessonEditor({ starterCode, language, courseId, lessonId, lessonIndex }: LessonEditorProps) {
     const [code, setCode] = useState(starterCode)
     const [running, setRunning] = useState(false)
     const [tests, setTests] = useState<TestResult[]>(MOCK_TESTS)
@@ -71,7 +72,7 @@ export function LessonEditor({ starterCode, language, courseId, lessonId }: Less
     const handleComplete = async () => {
         if (!publicKey || !allPassed) return
         try {
-            const result = await completeLessonAction(publicKey.toBase58(), courseId, parseInt(lessonId.slice(1), 10))
+            const result = await completeLessonAction(publicKey.toBase58(), courseId, lessonIndex)
             if (result.success && result.xpEarned) {
                 toast.success(`Lesson completed! +${result.xpEarned} XP`, { icon: '⚡' })
             } else {
