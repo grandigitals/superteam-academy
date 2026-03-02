@@ -2,6 +2,7 @@
 
 import { createUserProfileService } from '@/services/factory'
 import type { UserProfile } from '@/services/types'
+import { revalidatePath } from 'next/cache'
 
 export async function getProfileAction(
     wallet: string
@@ -25,6 +26,7 @@ export async function upsertProfileAction(
     try {
         const service = createUserProfileService()
         const profile = await service.upsertProfile(data)
+        revalidatePath('/', 'layout')
         return { success: true, profile }
     } catch (error) {
         console.error('[upsertProfileAction]', error)

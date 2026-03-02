@@ -38,9 +38,14 @@ export function CourseContentClient({ courseId, slug, modules }: CourseContentCl
 
     }, [publicKey, courseId])
 
-    // Helper to find the absolute index of a lesson across all modules (since completion is often stored as absolute index)
-    // The current mock/supabase setup might just return lesson.index or absolute index.
-    // Assuming lesson.index maps directly to the flags in bitmap.
+    // Helper to find the absolute index of a lesson across all modules
+    const absoluteLessonMap: Record<string, number> = {}
+    let count = 0
+    modules.forEach(m => {
+        m.lessons.forEach(l => {
+            absoluteLessonMap[l.id] = count++
+        })
+    })
 
     return (
         <div className="space-y-4">
@@ -56,7 +61,8 @@ export function CourseContentClient({ courseId, slug, modules }: CourseContentCl
                     </div>
                     <ul className="divide-y divide-border">
                         {module.lessons.map((lesson: Lesson) => {
-                            const isCompleted = completedLessons.includes(lesson.order)
+                            const absoluteIndex = absoluteLessonMap[lesson.id] ?? 0
+                            const isCompleted = completedLessons.includes(absoluteIndex)
 
                             return (
                                 <li key={lesson.id}>

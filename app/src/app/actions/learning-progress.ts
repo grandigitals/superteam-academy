@@ -9,6 +9,7 @@ import { createLearningProgressService } from '@/services/factory'
 import type { CourseProgress, StreakData } from '@/services/types'
 import { getEnrollmentsAction } from './enrollment'
 import { fetchAllCourses } from '@/services/CourseService'
+import { revalidatePath } from 'next/cache'
 
 export async function completeLessonAction(
     wallet: string,
@@ -18,6 +19,7 @@ export async function completeLessonAction(
     try {
         const service = createLearningProgressService()
         const result = await service.completeLesson(wallet, courseId, lessonIndex)
+        revalidatePath('/', 'layout')
         return { success: true, ...result }
     } catch (error) {
         console.error('[completeLessonAction]', error)
