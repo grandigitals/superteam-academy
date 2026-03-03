@@ -4,6 +4,8 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { LessonEditor } from '@/components/lesson/LessonEditor'
 import { CompleteButton } from '@/components/lesson/CompleteButton'
 import { fetchCourseBySlug } from '@/services/CourseService'
+import { cookies } from 'next/headers'
+import { getCourseProgressAction } from '@/app/actions/learning-progress'
 
 interface Props {
     params: Promise<{ locale: string; slug: string; id: string }>
@@ -139,6 +141,25 @@ export default async function LessonPage({ params }: Props) {
 
     const isChallenge = lesson.type === 'challenge'
 
+    // Check if this lesson is already completed
+    // We need the wallet address - try to get it from auth store via cookies
+    const cookieStore = await cookies()
+    const authCookie = cookieStore.get('sta-auth')
+    let isCompleted = false
+    
+    if (authCookie?.value) {
+        try {
+            const authData = JSON.parse(authCookie.value)
+            const wallet = authData?.state?.user?.wallet
+            if (wallet && course?.id) {
+                const { progress } = await getCourseProgressAction(wallet, course.id)
+                isCompleted = progress?.completedLessons.includes(lessonIndex) ?? false
+            }
+        } catch {
+            // If parsing fails, just default to not completed
+        }
+    }
+
     return (
         <div className="flex h-[calc(100dvh-4rem)] flex-col overflow-hidden">
             {/* Top bar */}
@@ -172,7 +193,7 @@ export default async function LessonPage({ params }: Props) {
                     {/* Complete button for content lessons */}
                     {!isChallenge && (
                         <div className="sticky bottom-0 border-t border-border p-4" style={{ background: 'var(--background-elevated)' }}>
-                            <CompleteButton courseId={course?.id ?? slug} lessonId={id} lessonIndex={lessonIndex} />
+                            <CompleteButton courseId={course?.id ?? slug} lessonId={id} lessonIndex={lessonIndex} initialCompleted={isCompleted} />
                         </div>
                     )}
                 </div>
@@ -186,6 +207,7 @@ export default async function LessonPage({ params }: Props) {
                             courseId={course?.id ?? slug}
                             lessonId={id}
                             lessonIndex={lessonIndex}
+                            initialCompleted={isCompleted}
                         />
                     </div>
                 )}

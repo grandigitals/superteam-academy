@@ -15,13 +15,14 @@ interface CompleteButtonProps {
     lessonId: string
     lessonIndex: number
     xpReward?: number
+    initialCompleted?: boolean
 }
 
-export function CompleteButton({ courseId, lessonId, lessonIndex, xpReward = 50 }: CompleteButtonProps) {
+export function CompleteButton({ courseId, lessonId, lessonIndex, xpReward = 50, initialCompleted = false }: CompleteButtonProps) {
     const { publicKey } = useWallet()
     const t = useTranslations('lesson')
     const [loading, setLoading] = useState(false)
-    const [done, setDone] = useState(false)
+    const [done, setDone] = useState(initialCompleted)
     const { refreshXP } = useXP()
     const setXP = useAuthStore(s => s.setXP)
 

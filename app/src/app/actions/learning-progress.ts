@@ -19,6 +19,9 @@ export async function completeLessonAction(
     try {
         const service = createLearningProgressService()
         const result = await service.completeLesson(wallet, courseId, lessonIndex)
+        // Revalidate the specific lesson page and the course page to update progress indicators
+        revalidatePath('/[locale]/courses/[slug]/lessons/[id]', 'page')
+        revalidatePath('/[locale]/courses/[slug]', 'page')
         revalidatePath('/', 'layout')
         return { success: true, ...result }
     } catch (error) {

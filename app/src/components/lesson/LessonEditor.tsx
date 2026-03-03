@@ -29,6 +29,7 @@ interface LessonEditorProps {
     courseId: string
     lessonId: string
     lessonIndex: number
+    initialCompleted?: boolean
 }
 
 // Simulated tests for the challenge
@@ -39,11 +40,12 @@ const MOCK_TESTS: TestResult[] = [
     { name: 'Payer pays transaction fees', passed: false },
 ]
 
-export function LessonEditor({ starterCode, language, courseId, lessonId, lessonIndex }: LessonEditorProps) {
+export function LessonEditor({ starterCode, language, courseId, lessonId, lessonIndex, initialCompleted = false }: LessonEditorProps) {
     const [code, setCode] = useState(starterCode)
     const [running, setRunning] = useState(false)
     const [tests, setTests] = useState<TestResult[]>(MOCK_TESTS)
-    const [allPassed, setAllPassed] = useState(false)
+    const [allPassed, setAllPassed] = useState(initialCompleted)
+    const [completed, setCompleted] = useState(initialCompleted)
     const { publicKey } = useWallet()
 
     const handleRunTests = async () => {
@@ -74,6 +76,7 @@ export function LessonEditor({ starterCode, language, courseId, lessonId, lesson
         try {
             const result = await completeLessonAction(publicKey.toBase58(), courseId, lessonIndex)
             if (result.success && result.xpEarned) {
+                setCompleted(true)
                 toast.success(`Lesson completed! +${result.xpEarned} XP`, { icon: '⚡' })
             } else {
                 toast.error(result.error || 'Failed to record completion')
@@ -134,7 +137,7 @@ export function LessonEditor({ starterCode, language, courseId, lessonId, lesson
                         {running ? 'Running...' : 'Run Tests'}
                     </button>
 
-                    {allPassed && (
+                    {allPassed && !completed && (
                         <button
                             onClick={handleComplete}
                             className="rounded-lg px-4 py-2 text-sm font-semibold text-background transition-all hover:scale-105"
@@ -142,6 +145,11 @@ export function LessonEditor({ starterCode, language, courseId, lessonId, lesson
                         >
                             Mark Complete ✓
                         </button>
+                    )}
+                    {completed && (
+                        <div className="flex items-center gap-2 text-sm font-medium text-sol-green">
+                            <CheckCircle className="h-4 w-4" /> Completed
+                        </div>
                     )}
                 </div>
             </div>
