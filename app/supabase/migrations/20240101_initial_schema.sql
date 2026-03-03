@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS enrollments (
   enrolled_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   completed_at TIMESTAMPTZ,
   progress_pct SMALLINT NOT NULL DEFAULT 0 CHECK (progress_pct BETWEEN 0 AND 100),
+  xp_earned   INT NOT NULL DEFAULT 0,     -- Total XP earned in this course
   UNIQUE (wallet, course_id)
 );
 
@@ -92,5 +93,23 @@ ALTER TABLE streaks ENABLE ROW LEVEL SECURITY;
 
 -- Policies: users can read their own data; service role bypasses all
 CREATE POLICY "Users can read own row" ON users FOR SELECT USING (true);
-CREATE POLICY "Service role full access on users" ON users USING (auth.role() = 'service_role');
+CREATE POLICY "Users can insert own row" ON users FOR INSERT WITH CHECK (true);
+CREATE POLICY "Users can update own row" ON users FOR UPDATE USING (true);
+
+CREATE POLICY "Enrollments select all" ON enrollments FOR SELECT USING (true);
+CREATE POLICY "Enrollments insert own" ON enrollments FOR INSERT WITH CHECK (true);
+CREATE POLICY "Enrollments update own" ON enrollments FOR UPDATE USING (true);
+
+CREATE POLICY "Lesson completions select all" ON lesson_completions FOR SELECT USING (true);
+CREATE POLICY "Lesson completions insert own" ON lesson_completions FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Credentials select all" ON credentials FOR SELECT USING (true);
+CREATE POLICY "Credentials insert own" ON credentials FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "XP ledger select all" ON xp_ledger FOR SELECT USING (true);
+CREATE POLICY "XP ledger insert own" ON xp_ledger FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Streaks select all" ON streaks FOR SELECT USING (true);
+CREATE POLICY "Streaks insert own" ON streaks FOR INSERT WITH CHECK (true);
+CREATE POLICY "Streaks update own" ON streaks FOR UPDATE USING (true);
 
