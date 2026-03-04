@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { Clock, BookOpen, Award, Users, ArrowLeft } from 'lucide-react'
 import { EnrollButton } from '@/components/courses/EnrollButton'
 import { CourseContentClient } from '@/components/courses/CourseContentClient'
+import { CourseProgressBar } from '@/components/courses/CourseProgressBar'
 import { fetchCourseBySlug } from '@/services/CourseService'
 
 interface Props {
@@ -35,9 +36,6 @@ export default async function CourseDetailPage({ params }: Props) {
     const modules = course.modules ?? []
     const allLessons = modules.flatMap(m => m.lessons)
     const totalLessons = allLessons.length || course.lessonCount
-    const completedCount = 0 // real progress comes from wallet-connected client
-
-    const progressPct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0
 
     return (
         <div className="min-h-screen px-4 py-10">
@@ -71,20 +69,9 @@ export default async function CourseDetailPage({ params }: Props) {
                         </span>
                     </div>
 
-                    {/* Progress bar (shows 0 for guests; client can hydrate) */}
+                    {/* Progress bar - client component reads real completion data */}
                     {totalLessons > 0 && (
-                        <div className="mb-6">
-                            <div className="mb-1.5 flex justify-between text-xs text-foreground-subtle">
-                                <span>{completedCount} / {totalLessons} lessons</span>
-                                <span>{progressPct}%</span>
-                            </div>
-                            <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
-                                <div
-                                    className="h-full rounded-full transition-all"
-                                    style={{ width: `${progressPct}%`, background: 'linear-gradient(90deg, #ffd23f, #008c4c)' }}
-                                />
-                            </div>
-                        </div>
+                        <CourseProgressBar courseId={course.id} totalLessons={totalLessons} />
                     )}
 
                     <EnrollButton courseId={course.id} />
