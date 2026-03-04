@@ -4,8 +4,6 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { LessonEditor } from '@/components/lesson/LessonEditor'
 import { CompleteButton } from '@/components/lesson/CompleteButton'
 import { fetchCourseBySlug } from '@/services/CourseService'
-import { cookies } from 'next/headers'
-import { getCourseProgressAction } from '@/app/actions/learning-progress'
 
 interface Props {
     params: Promise<{ locale: string; slug: string; id: string }>
@@ -130,7 +128,6 @@ export default async function LessonPage({ params }: Props) {
             if (found) break
         }
     }
-    // If not found in modules, default to 0 to prevent out of bounds
     if (!found) lessonIndex = 0
 
     const lesson = LESSON_CONTENT[id] ?? {
@@ -140,25 +137,6 @@ export default async function LessonPage({ params }: Props) {
     }
 
     const isChallenge = lesson.type === 'challenge'
-
-    // Check if this lesson is already completed
-    // We need the wallet address - try to get it from auth store via cookies
-    const cookieStore = await cookies()
-    const authCookie = cookieStore.get('sta-auth')
-    let isCompleted = false
-    
-    if (authCookie?.value) {
-        try {
-            const authData = JSON.parse(authCookie.value)
-            const wallet = authData?.state?.user?.wallet
-            if (wallet && course?.id) {
-                const { progress } = await getCourseProgressAction(wallet, course.id)
-                isCompleted = progress?.completedLessons.includes(lessonIndex) ?? false
-            }
-        } catch {
-            // If parsing fails, just default to not completed
-        }
-    }
 
     return (
         <div className="flex h-[calc(100dvh-4rem)] flex-col overflow-hidden">
@@ -184,7 +162,6 @@ export default async function LessonPage({ params }: Props) {
                 <div className={`overflow-y-auto border-r border-border ${isChallenge ? 'w-full md:w-[50%]' : 'w-full max-w-3xl mx-auto'}`}>
                     <div className="prose prose-invert max-w-none p-8">
                         <h1 className="font-display text-2xl font-bold text-foreground mb-4">{lesson.title}</h1>
-                        {/* Render markdown content as pre-formatted for now */}
                         <div className="text-foreground-muted leading-relaxed whitespace-pre-wrap text-sm font-mono">
                             {lesson.content}
                         </div>
@@ -193,7 +170,7 @@ export default async function LessonPage({ params }: Props) {
                     {/* Complete button for content lessons */}
                     {!isChallenge && (
                         <div className="sticky bottom-0 border-t border-border p-4" style={{ background: 'var(--background-elevated)' }}>
-                            <CompleteButton courseId={course?.id ?? slug} lessonId={id} lessonIndex={lessonIndex} initialCompleted={isCompleted} />
+                            <CompleteButton courseId={course?.id ?? slug} lessonId={id} lessonIndex={lessonIndex} />
                         </div>
                     )}
                 </div>
@@ -207,7 +184,6 @@ export default async function LessonPage({ params }: Props) {
                             courseId={course?.id ?? slug}
                             lessonId={id}
                             lessonIndex={lessonIndex}
-                            initialCompleted={isCompleted}
                         />
                     </div>
                 )}

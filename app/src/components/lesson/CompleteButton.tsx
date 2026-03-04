@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useTranslations } from 'next-intl'
 import { CheckCircle, Loader2 } from 'lucide-react'
@@ -8,29 +8,44 @@ import { toast } from 'sonner'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useXP } from '@/hooks/useXP'
 import { trackEvent } from '@/lib/analytics/posthog'
-import { completeLessonAction } from '@/app/actions/learning-progress'
+import { completeLessonAction, getCourseProgressAction } from '@/app/actions/learning-progress'
 
 interface CompleteButtonProps {
     courseId: string
     lessonId: string
     lessonIndex: number
     xpReward?: number
-    initialCompleted?: boolean
 }
 
-export function CompleteButton({ courseId, lessonId, lessonIndex, xpReward = 50, initialCompleted = false }: CompleteButtonProps) {
+export function CompleteButton({ courseId, lessonId, lessonIndex, xpReward = 50 }: CompleteButtonProps) {
     const { publicKey } = useWallet()
     const t = useTranslations('lesson')
     const [loading, setLoading] = useState(false)
-    const [done, setDone] = useState(initialCompleted)
+    const [checking, setChecking] = useState(true)
+    const [done, setDone] = useState(false)
     const { refreshXP } = useXP()
     const setXP = useAuthStore(s => s.setXP)
+
+    // On mount, check from Supabase whether this lesson is already completed
+    useEffect(() => {
+        if (!publicKey) {
+            setChecking(false)
+            return
+        }
+        getCourseProgressAction(publicKey.toBase58(), courseId)
+            .then(({ progress }) => {
+                if (progress?.completedLessons.includes(lessonIndex)) {
+                    setDone(true)
+                }
+            })
+            .catch(() => { /* silently ignore — just show button */ })
+            .finally(() => setChecking(false))
+    }, [publicKey, courseId, lessonIndex])
 
     const handleComplete = async () => {
         if (!publicKey) return
         setLoading(true)
         try {
-
             const result = await completeLessonAction(
                 publicKey.toBase58(),
                 courseId,
@@ -39,12 +54,9 @@ export function CompleteButton({ courseId, lessonId, lessonIndex, xpReward = 50,
 
             if (result.success) {
                 setDone(true)
-                // Update XP in store immediately for instant UI feedback
                 setXP(result.totalXP ?? 0)
                 trackEvent('lesson_completed', { courseId, lessonId, xpEarned: result.xpEarned ?? 0 })
                 toast.success(`+${result.xpEarned ?? 0} XP earned!`, { icon: '⚡', duration: 3000 })
-
-                // Then re-fetch from source to ensure accuracy
                 await refreshXP()
             } else {
                 toast.error(result.error || 'Failed to record completion')
@@ -54,6 +66,11 @@ export function CompleteButton({ courseId, lessonId, lessonIndex, xpReward = 50,
         } finally {
             setLoading(false)
         }
+    }
+
+    // While we're checking the DB, show a subtle loading spinner
+    if (checking) {
+        return <Loader2 className="h-5 w-5 animate-spin text-foreground-subtle" />
     }
 
     if (done) {
