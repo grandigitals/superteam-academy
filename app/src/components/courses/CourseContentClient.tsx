@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { CheckCircle, Award, ChevronRight } from 'lucide-react'
-import { createLearningProgressService, createEnrollmentService } from '@/services/factory'
+import { getCourseProgressAction } from '@/app/actions/learning-progress'
+import { getEnrollmentsAction } from '@/app/actions/enrollment'
 import type { CourseModule, Lesson } from '@/services/types'
 
 interface CourseContentClientProps {
@@ -27,18 +28,19 @@ export function CourseContentClient({ courseId, slug, modules }: CourseContentCl
 
         const wallet = publicKey.toBase58()
         Promise.all([
-            createLearningProgressService().getCourseProgress(wallet, courseId),
-            createEnrollmentService().isEnrolled(wallet, courseId)
-        ]).then(([progress, enrolled]) => {
+            getCourseProgressAction(wallet, courseId),
+            getEnrollmentsAction(wallet),
+        ]).then(([{ progress }, { enrollments }]) => {
             if (progress) {
                 setCompletedLessons(progress.completedLessons)
             }
+            const enrolled = (enrollments ?? []).some(e => e.courseId === courseId)
             setIsEnrolled(enrolled)
         }).catch(console.error).finally(() => setLoading(false))
 
     }, [publicKey, courseId])
 
-    // Helper to find the absolute index of a lesson across all modules
+    // Build absolute lesson index map across all modules
     const absoluteLessonMap: Record<string, number> = {}
     let count = 0
     modules.forEach(m => {
@@ -71,7 +73,9 @@ export function CourseContentClient({ courseId, slug, modules }: CourseContentCl
                                         className="flex items-center gap-3 px-5 py-3.5 text-sm transition-colors hover:bg-white/5 group"
                                     >
                                         <div className="h-5 w-5 flex-shrink-0 flex items-center justify-center">
-                                            {isCompleted ? (
+                                            {loading ? (
+                                                <div className="h-4 w-4 rounded-full border border-border-strong animate-pulse" />
+                                            ) : isCompleted ? (
                                                 <CheckCircle className="h-5 w-5 text-sol-green" />
                                             ) : (
                                                 <div className="h-4 w-4 rounded-full border border-border-strong group-hover:border-sol-green/50 transition-colors" />

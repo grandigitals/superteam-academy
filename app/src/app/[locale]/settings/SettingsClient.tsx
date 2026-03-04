@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Settings, Globe, Palette, Wallet, User, Loader2 } from 'lucide-react'
+import { Settings, Globe, Wallet, User, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { getProfileAction, upsertProfileAction } from '@/app/actions/profile'
 import { useTranslations, useLocale } from 'next-intl'
@@ -18,13 +18,17 @@ export function SettingsClient() {
 
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
-    const [savedMessage, setSavedMessage] = useState(false)
+    const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle')
+    const [errorMsg, setErrorMsg] = useState('')
 
-    useEffect(() => {
-        if (!user?.wallet) return
-
-        getProfileAction(user.wallet)
-            .then(({ profile }) => {
+    // Load profile from Supabase on mount (and whenever wallet changes)
+    const loadProfile = (wallet: string) => {
+        setLoading(true)
+        getProfileAction(wallet)
+            .then(({ profile, error }) => {
+                if (error) {
+                    console.error('[SettingsClient] load error:', error)
+                }
                 if (profile) {
                     setDisplayName(profile.displayName || '')
                     setBio(profile.bio || '')
@@ -34,16 +38,25 @@ export function SettingsClient() {
             })
             .catch(console.error)
             .finally(() => setLoading(false))
+    }
+
+    useEffect(() => {
+        if (!user?.wallet) {
+            setLoading(false)
+            return
+        }
+        loadProfile(user.wallet)
     }, [user?.wallet])
 
     const handleSave = async () => {
         if (!user?.wallet) return
 
         setSaving(true)
-        setSavedMessage(false)
+        setSaveStatus('idle')
+        setErrorMsg('')
 
         try {
-            const { success, profile } = await upsertProfileAction({
+            const { success, profile, error } = await upsertProfileAction({
                 wallet: user.wallet,
                 displayName,
                 bio,
@@ -52,16 +65,23 @@ export function SettingsClient() {
             })
 
             if (success && profile) {
-                // Update the global auth store if the display name changed
-                if (profile.displayName !== user.displayName) {
-                    signIn({ ...user, displayName: profile.displayName ?? null })
-                }
-
-                setSavedMessage(true)
-                setTimeout(() => setSavedMessage(false), 3000)
+                // Update the global auth store with new display name
+                signIn({ ...user, displayName: profile.displayName ?? null })
+                // Reload the saved values from DB to confirm persistence
+                setDisplayName(profile.displayName || '')
+                setBio(profile.bio || '')
+                setTwitter(profile.twitter || '')
+                setGithub(profile.github || '')
+                setSaveStatus('saved')
+                setTimeout(() => setSaveStatus('idle'), 3000)
+            } else {
+                setErrorMsg(error || 'Save failed. Please try again.')
+                setSaveStatus('error')
             }
         } catch (err) {
             console.error(err)
+            setErrorMsg('An unexpected error occurred. Please try again.')
+            setSaveStatus('error')
         } finally {
             setSaving(false)
         }
@@ -167,6 +187,14 @@ export function SettingsClient() {
                 )}
             </div>
 
+            {/* Error message */}
+            {saveStatus === 'error' && (
+                <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                    {errorMsg}
+                </div>
+            )}
+
             {/* Save */}
             <button
                 onClick={handleSave}
@@ -175,7 +203,8 @@ export function SettingsClient() {
                 style={{ background: 'linear-gradient(135deg, #ffd23f, #008c4c)' }}
             >
                 {saving && <Loader2 className="h-5 w-5 animate-spin" />}
-                {savedMessage ? t('saved') : t('saveChanges')}
+                {saveStatus === 'saved' && <CheckCircle className="h-5 w-5" />}
+                {saveStatus === 'saved' ? t('saved') : t('saveChanges')}
             </button>
         </div>
     )
