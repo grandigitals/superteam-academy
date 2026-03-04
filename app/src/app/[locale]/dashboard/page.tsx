@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import type { Metadata } from 'next'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { LayoutDashboard, Flame, Award, BookOpen } from 'lucide-react'
 import { XPBar } from '@/components/gamification/XPBar'
@@ -12,15 +11,53 @@ import { WalletGate } from '@/components/wallet/WalletGate'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useXP } from '@/hooks/useXP'
 import { getEnrollmentsAction } from '@/app/actions/enrollment'
-import { getStreakDataAction } from '@/app/actions/learning-progress'
+import { getStreakDataAction, getSkillsBreakdownAction } from '@/app/actions/learning-progress'
 import type { Enrollment } from '@/services/types'
 import type { StreakData } from '@/services/types'
 import { MOCK_COURSES } from '@/services/CourseService'
 
-const ACHIEVEMENTS = [
-    { id: 'first-lesson', name: 'First Steps', icon: '🎯', xp: 100, desc: 'Completed your first lesson' },
-    { id: 'streak-7', name: '7-Day Streak', icon: '🔥', xp: 500, desc: '7 days in a row' },
-    { id: 'first-course', name: 'Course Complete', icon: '🏆', xp: 1000, desc: 'First course finished' },
+// Achievement definitions — only display when earned
+const ALL_ACHIEVEMENTS = [
+    {
+        id: 'first-lesson',
+        name: 'First Steps',
+        icon: '🎯',
+        xp: 100,
+        desc: 'Completed your first lesson',
+        earned: (totalLessons: number, _streak: number) => totalLessons >= 1,
+    },
+    {
+        id: 'lessons-5',
+        name: 'Getting Serious',
+        icon: '📚',
+        xp: 250,
+        desc: 'Completed 5 lessons',
+        earned: (totalLessons: number, _streak: number) => totalLessons >= 5,
+    },
+    {
+        id: 'streak-3',
+        name: '3-Day Streak',
+        icon: '🔥',
+        xp: 150,
+        desc: '3 days in a row',
+        earned: (_total: number, streak: number) => streak >= 3,
+    },
+    {
+        id: 'streak-7',
+        name: '7-Day Streak',
+        icon: '⚡',
+        xp: 500,
+        desc: '7 days in a row',
+        earned: (_total: number, streak: number) => streak >= 7,
+    },
+    {
+        id: 'first-course',
+        name: 'Course Complete',
+        icon: '🏆',
+        xp: 1000,
+        desc: 'First course finished',
+        earned: (totalLessons: number, _streak: number) => totalLessons >= 9,
+    },
 ]
 
 export default function DashboardPage() {
@@ -30,6 +67,8 @@ export default function DashboardPage() {
 
     const [enrollments, setEnrollments] = useState<Enrollment[]>([])
     const [streak, setStreak] = useState<StreakData | null>(null)
+    const [skills, setSkills] = useState<Array<{ subject: string; value: number }>>([])
+    const [totalCompletedLessons, setTotalCompletedLessons] = useState(0)
     const [loadingData, setLoadingData] = useState(true)
 
     useEffect(() => {
@@ -39,10 +78,17 @@ export default function DashboardPage() {
         Promise.all([
             getEnrollmentsAction(wallet).then(res => res.enrollments),
             getStreakDataAction(wallet).then(res => res.streak),
+            getSkillsBreakdownAction(wallet).then(res => res.skills),
             refreshXP(),
-        ]).then(([e, s]) => {
+        ]).then(([e, s, sk]) => {
             setEnrollments(e)
             setStreak(s ?? null)
+            setSkills(sk)
+            // Count total completed lessons across all enrollments (using XP as proxy)
+            // Each lesson = 50 XP minimum, or count from enrollments xpEarned
+            const totalXpEarned = e.reduce((sum, en) => sum + (en.xpEarned || 0), 0)
+            // Estimate completed lessons from XP (50 XP per lesson is the default reward)
+            setTotalCompletedLessons(Math.floor(totalXpEarned / 50))
         }).catch(console.warn).finally(() => setLoadingData(false))
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [publicKey, isAuthenticated])
@@ -53,7 +99,10 @@ export default function DashboardPage() {
         .filter(Boolean) as typeof MOCK_COURSES
 
     const currentStreak = streak?.currentStreak ?? 0
-    const streakHistory = streak?.history ?? Array.from({ length: 7 }, (_, i) => ({ date: '', completed: false }))
+    const streakHistory = streak?.history ?? Array.from({ length: 7 }, () => ({ date: '', completed: false }))
+
+    // Only show achievements the user has actually earned
+    const earnedAchievements = ALL_ACHIEVEMENTS.filter(a => a.earned(totalCompletedLessons, currentStreak))
 
     return (
         <WalletGate requireAuth message="Connect your wallet to access your dashboard.">
@@ -107,11 +156,16 @@ export default function DashboardPage() {
 
                         <div className="card-glass rounded-2xl p-5">
                             <span className="text-xs text-foreground-muted uppercase tracking-wide">Achievements</span>
-                            <div className="mt-2 font-display text-2xl font-bold text-foreground">{ACHIEVEMENTS.length}</div>
+                            <div className="mt-2 font-display text-2xl font-bold text-foreground">
+                                {loadingData ? '—' : earnedAchievements.length}
+                            </div>
                             <div className="mt-1 flex gap-1">
-                                {ACHIEVEMENTS.slice(0, 3).map(a => (
-                                    <span key={a.id} className="text-base">{a.icon}</span>
+                                {earnedAchievements.slice(0, 3).map(a => (
+                                    <span key={a.id} className="text-base" title={a.name}>{a.icon}</span>
                                 ))}
+                                {earnedAchievements.length === 0 && !loadingData && (
+                                    <span className="text-xs text-foreground-subtle">Complete lessons to earn!</span>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -139,24 +193,67 @@ export default function DashboardPage() {
                         )}
                     </div>
 
-                    {/* Recent Achievements */}
+                    {/* Skills Breakdown — same real data as the public profile */}
+                    <div className="card-glass rounded-2xl p-6">
+                        <h2 className="mb-4 font-display text-xl font-bold">Skills Breakdown</h2>
+                        {loadingData ? (
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="animate-pulse rounded-xl border border-border bg-white/5 h-16" />
+                                ))}
+                            </div>
+                        ) : skills.length === 0 ? (
+                            <div className="flex h-24 items-center justify-center rounded-xl border border-border bg-white/5 text-sm text-foreground-muted">
+                                Enroll in courses to start tracking your skills!
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                {skills.map(({ subject, value }) => (
+                                    <div key={subject} className="rounded-xl border border-border bg-white/5 p-3">
+                                        <div className="mb-1 flex justify-between text-xs">
+                                            <span className="text-foreground-muted">{subject}</span>
+                                            <span className="font-mono text-sol-green">{value}%</span>
+                                        </div>
+                                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                                            <div className="h-full rounded-full" style={{ width: `${value}%`, background: 'linear-gradient(90deg, #ffd23f, #008c4c)' }} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Achievements — only show EARNED ones */}
                     <div>
                         <div className="mb-4 flex items-center gap-2">
                             <Award className="h-5 w-5 text-xp-gold" />
                             <h2 className="font-display text-xl font-bold">Achievements</h2>
                         </div>
-                        <div className="grid gap-3 sm:grid-cols-3">
-                            {ACHIEVEMENTS.map(a => (
-                                <div key={a.id} className="card-glass flex items-center gap-3 rounded-xl p-4">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-xp-gold/10 text-xl">{a.icon}</div>
-                                    <div>
-                                        <div className="font-semibold text-sm">{a.name}</div>
-                                        <div className="text-xs text-foreground-muted">{a.desc}</div>
-                                        <div className="text-xs text-xp-gold">+{a.xp} XP</div>
+                        {loadingData ? (
+                            <div className="grid gap-3 sm:grid-cols-3">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="card-glass animate-pulse rounded-xl h-20" />
+                                ))}
+                            </div>
+                        ) : earnedAchievements.length === 0 ? (
+                            <div className="flex h-24 flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-white/5 text-foreground-muted">
+                                <Award className="h-8 w-8 opacity-30" />
+                                <p className="text-sm">No achievements yet — complete your first lesson!</p>
+                            </div>
+                        ) : (
+                            <div className="grid gap-3 sm:grid-cols-3">
+                                {earnedAchievements.map(a => (
+                                    <div key={a.id} className="card-glass flex items-center gap-3 rounded-xl p-4 border border-xp-gold/20 bg-xp-gold/5">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-xp-gold/10 text-xl flex-shrink-0">{a.icon}</div>
+                                        <div>
+                                            <div className="font-semibold text-sm">{a.name}</div>
+                                            <div className="text-xs text-foreground-muted">{a.desc}</div>
+                                            <div className="text-xs text-xp-gold">+{a.xp} XP</div>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
