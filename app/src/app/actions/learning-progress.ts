@@ -7,23 +7,67 @@
 
 import { createLearningProgressService } from '@/services/factory'
 import type { CourseProgress, StreakData } from '@/services/types'
-import { getEnrollmentsAction } from './enrollment'
 import { fetchAllCourses } from '@/services/CourseService'
 import { revalidatePath } from 'next/cache'
+import { getSupabaseAdmin } from '@/lib/supabase/admin'
+
+const COURSE_COMPLETE_XP = 1000
 
 export async function completeLessonAction(
     wallet: string,
     courseId: string,
     lessonIndex: number
-): Promise<{ success: boolean; xpEarned?: number; totalXP?: number; error?: string }> {
+): Promise<{ success: boolean; xpEarned?: number; totalXP?: number; courseCompleted?: boolean; error?: string }> {
     try {
         const service = createLearningProgressService()
         const result = await service.completeLesson(wallet, courseId, lessonIndex)
-        // Revalidate the specific lesson page and the course page to update progress indicators
+
+        // Check if the course is now fully completed (all lessons done)
+        let courseCompleted = false
+        try {
+            const progress = await service.getCourseProgress(wallet, courseId)
+            const courses = await fetchAllCourses()
+            const course = courses.find(c => c.id === courseId || c.slug === courseId)
+            const totalLessons = course?.modules?.flatMap(m => m.lessons).length ?? course?.lessonCount ?? 0
+
+            if (
+                progress &&
+                totalLessons > 0 &&
+                progress.completedLessons.length >= totalLessons
+            ) {
+                // Award course complete bonus XP (idempotent — unique constraint prevents double award)
+                const db = getSupabaseAdmin()
+                const { error: xpErr } = await db.from('xp_ledger').upsert(
+                    {
+                        wallet,
+                        amount: COURSE_COMPLETE_XP,
+                        reason: 'course_complete',
+                        course_id: courseId,
+                        lesson_index: -1, // sentinel for course-level reward
+                        created_at: new Date().toISOString(),
+                    },
+                    { onConflict: 'wallet,course_id,lesson_index', ignoreDuplicates: true }
+                )
+                if (!xpErr) {
+                    courseCompleted = true
+                    // Mark enrollment as completed
+                    await db.from('enrollments').update({
+                        completed_at: new Date().toISOString(),
+                        progress_pct: 100,
+                        xp_earned: progress.completedLessons.length * 50 + COURSE_COMPLETE_XP,
+                    }).eq('wallet', wallet).eq('course_id', courseId)
+                }
+            }
+        } catch (bonusErr) {
+            console.warn('[completeLessonAction] course bonus check failed:', bonusErr)
+        }
+
         revalidatePath('/[locale]/courses/[slug]/lessons/[id]', 'page')
         revalidatePath('/[locale]/courses/[slug]', 'page')
         revalidatePath('/', 'layout')
-        return { success: true, ...result }
+
+        const finalXP = await service.getXPBalance(wallet)
+        return { success: true, xpEarned: result.xpEarned, totalXP: finalXP, courseCompleted }
     } catch (error) {
         console.error('[completeLessonAction]', error)
         return {
@@ -82,43 +126,48 @@ export async function getStreakDataAction(
     }
 }
 
+/**
+ * Skills breakdown — uses getAllProgress() which reads directly from lesson_completions.
+ * This matches the same data source as the public profile page.
+ */
 export async function getSkillsBreakdownAction(wallet: string): Promise<{ skills: Array<{ subject: string; value: number }> }> {
     try {
-        const { enrollments } = await getEnrollmentsAction(wallet)
+        const service = createLearningProgressService()
         const courses = await fetchAllCourses()
 
-        const trackStats: Record<string, { xpEarned: number; maxXP: number }> = {}
+        // Use getAllProgress (reads lesson_completions directly — same as public profile)
+        const allProgress = await service.getAllProgress(wallet)
 
-        // Calculate maximum possible XP per track
+        let totalCompleted = 0
+        allProgress.forEach(p => totalCompleted += p.completedLessons.length)
+
+        if (totalCompleted === 0) return { skills: [] }
+
+        // Calculate per-track completion based on actual lesson counts
+        const trackLessons: Record<string, number> = {}
+        const trackCompleted: Record<string, number> = {}
+
         for (const course of courses) {
             const track = (course.track || 'fundamentals').toLowerCase()
-            if (!trackStats[track]) trackStats[track] = { xpEarned: 0, maxXP: 0 }
-            trackStats[track].maxXP += course.xpReward || 0
+            const courseLessons = course.modules?.flatMap(m => m.lessons).length ?? course.lessonCount ?? 0
+            trackLessons[track] = (trackLessons[track] ?? 0) + courseLessons
+
+            const progress = allProgress.find(p => p.courseId === course.id || p.courseId === course.slug)
+            const completedInCourse = progress?.completedLessons.length ?? 0
+            trackCompleted[track] = (trackCompleted[track] ?? 0) + completedInCourse
         }
 
-        // Add user's earned XP from their enrollments
-        for (const enrollment of (enrollments || [])) {
-            const course = courses.find((c) => c.id === enrollment.courseId || c.slug === enrollment.courseId)
-            if (course) {
-                const track = (course.track || 'fundamentals').toLowerCase()
-                if (trackStats[track]) {
-                    trackStats[track].xpEarned += enrollment.xpEarned || 0
-                }
-            }
-        }
-
-        // Format for the UI
-        const skills = Object.entries(trackStats)
-            .filter(([_, stats]) => stats.maxXP > 0)
-            .map(([trackId, stats]) => {
+        const skills = Object.entries(trackLessons)
+            .filter(([, total]) => total > 0)
+            .map(([trackId, total]) => {
                 let subject = trackId.charAt(0).toUpperCase() + trackId.slice(1)
                 if (subject === 'Defi') subject = 'DeFi'
                 if (subject === 'Nft') subject = 'NFT'
-
-                const value = Math.min(100, Math.round((stats.xpEarned / stats.maxXP) * 100))
+                const completed = trackCompleted[trackId] ?? 0
+                const value = Math.min(100, Math.round((completed / total) * 100))
                 return { subject, value }
             })
-            // Sort by highest value first
+            .filter(s => s.value > 0)
             .sort((a, b) => b.value - a.value)
 
         return { skills }
@@ -129,21 +178,27 @@ export async function getSkillsBreakdownAction(wallet: string): Promise<{ skills
 }
 
 /**
- * Count the total number of distinct lessons a wallet has completed across ALL courses.
- * Reads directly from the lesson_completions table — no XP proxy needed.
+ * Count total completed lessons across ALL courses directly from lesson_completions.
  */
 export async function getTotalCompletedLessonsAction(wallet: string): Promise<{ count: number; error?: string }> {
     try {
         const service = createLearningProgressService()
-        // getCourseProgress only works per course; query the DB aggregate directly via XP ledger count
         const xp = await service.getXPBalance(wallet)
-        // Each lesson awards exactly 50 XP (XP_PER_LESSON in SupabaseLearningProgressService)
-        // The XP ledger has UNIQUE constraint on (wallet, course_id, lesson_index) so no double-counting
-        const count = Math.floor(xp / 50)
+        // Each lesson = 50 XP; course bonus = 1000 XP with lesson_index -1 (excluded from count)
+        // XP ledger UNIQUE on (wallet, course_id, lesson_index) — no double counting
+        // Subtract course-complete bonuses from XP count
+        const db = getSupabaseAdmin()
+        const { count: bonusCount } = await db
+            .from('xp_ledger')
+            .select('*', { count: 'exact', head: true })
+            .eq('wallet', wallet)
+            .eq('reason', 'course_complete')
+        const courseCompleteXP = (bonusCount ?? 0) * COURSE_COMPLETE_XP
+        const lessonXP = xp - courseCompleteXP
+        const count = Math.max(0, Math.floor(lessonXP / 50))
         return { count }
     } catch (error) {
         console.error('[getTotalCompletedLessonsAction]', error)
         return { count: 0, error: error instanceof Error ? error.message : 'Failed to count lessons' }
     }
 }
-
