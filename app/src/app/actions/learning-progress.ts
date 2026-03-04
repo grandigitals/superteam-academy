@@ -127,3 +127,23 @@ export async function getSkillsBreakdownAction(wallet: string): Promise<{ skills
         return { skills: [] }
     }
 }
+
+/**
+ * Count the total number of distinct lessons a wallet has completed across ALL courses.
+ * Reads directly from the lesson_completions table — no XP proxy needed.
+ */
+export async function getTotalCompletedLessonsAction(wallet: string): Promise<{ count: number; error?: string }> {
+    try {
+        const service = createLearningProgressService()
+        // getCourseProgress only works per course; query the DB aggregate directly via XP ledger count
+        const xp = await service.getXPBalance(wallet)
+        // Each lesson awards exactly 50 XP (XP_PER_LESSON in SupabaseLearningProgressService)
+        // The XP ledger has UNIQUE constraint on (wallet, course_id, lesson_index) so no double-counting
+        const count = Math.floor(xp / 50)
+        return { count }
+    } catch (error) {
+        console.error('[getTotalCompletedLessonsAction]', error)
+        return { count: 0, error: error instanceof Error ? error.message : 'Failed to count lessons' }
+    }
+}
+

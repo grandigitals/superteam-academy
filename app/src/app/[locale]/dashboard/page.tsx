@@ -11,7 +11,7 @@ import { WalletGate } from '@/components/wallet/WalletGate'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useXP } from '@/hooks/useXP'
 import { getEnrollmentsAction } from '@/app/actions/enrollment'
-import { getStreakDataAction, getSkillsBreakdownAction } from '@/app/actions/learning-progress'
+import { getStreakDataAction, getSkillsBreakdownAction, getTotalCompletedLessonsAction } from '@/app/actions/learning-progress'
 import type { Enrollment } from '@/services/types'
 import type { StreakData } from '@/services/types'
 import { MOCK_COURSES } from '@/services/CourseService'
@@ -79,19 +79,17 @@ export default function DashboardPage() {
             getEnrollmentsAction(wallet).then(res => res.enrollments),
             getStreakDataAction(wallet).then(res => res.streak),
             getSkillsBreakdownAction(wallet).then(res => res.skills),
+            getTotalCompletedLessonsAction(wallet).then(res => res.count),
             refreshXP(),
-        ]).then(([e, s, sk]) => {
+        ]).then(([e, s, sk, count]) => {
             setEnrollments(e)
             setStreak(s ?? null)
             setSkills(sk)
-            // Count total completed lessons across all enrollments (using XP as proxy)
-            // Each lesson = 50 XP minimum, or count from enrollments xpEarned
-            const totalXpEarned = e.reduce((sum, en) => sum + (en.xpEarned || 0), 0)
-            // Estimate completed lessons from XP (50 XP per lesson is the default reward)
-            setTotalCompletedLessons(Math.floor(totalXpEarned / 50))
+            setTotalCompletedLessons(count)
         }).catch(console.warn).finally(() => setLoadingData(false))
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [publicKey, isAuthenticated])
+
 
     // Map enrollments to courses for CourseGrid
     const enrolledCourses = enrollments

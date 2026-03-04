@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { Play, CheckCircle, XCircle, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { completeLessonAction } from '@/app/actions/learning-progress'
+import { completeLessonAction, getCourseProgressAction } from '@/app/actions/learning-progress'
 import { useWallet } from '@solana/wallet-adapter-react'
 
 // Lazy-load Monaco — NOT in initial bundle (performance requirement)
@@ -29,7 +29,6 @@ interface LessonEditorProps {
     courseId: string
     lessonId: string
     lessonIndex: number
-    initialCompleted?: boolean
 }
 
 // Simulated tests for the challenge
@@ -40,25 +39,42 @@ const MOCK_TESTS: TestResult[] = [
     { name: 'Payer pays transaction fees', passed: false },
 ]
 
-export function LessonEditor({ starterCode, language, courseId, lessonId, lessonIndex, initialCompleted = false }: LessonEditorProps) {
+export function LessonEditor({ starterCode, language, courseId, lessonId, lessonIndex }: LessonEditorProps) {
     const [code, setCode] = useState(starterCode)
     const [running, setRunning] = useState(false)
     const [tests, setTests] = useState<TestResult[]>(MOCK_TESTS)
-    const [allPassed, setAllPassed] = useState(initialCompleted)
-    const [completed, setCompleted] = useState(initialCompleted)
+    const [allPassed, setAllPassed] = useState(false)
+    const [completed, setCompleted] = useState(false)
+    const [checking, setChecking] = useState(true)
     const { publicKey } = useWallet()
+
+    // On mount, check from Supabase if this challenge was already completed
+    useEffect(() => {
+        if (!publicKey) { setChecking(false); return }
+        getCourseProgressAction(publicKey.toBase58(), courseId)
+            .then(({ progress }) => {
+                if (progress?.completedLessons.includes(lessonIndex)) {
+                    setCompleted(true)
+                    setAllPassed(true)
+                    setTests(MOCK_TESTS.map(t => ({ ...t, passed: true })))
+                }
+            })
+            .catch(() => { /* silently ignore */ })
+            .finally(() => setChecking(false))
+    }, [publicKey, courseId, lessonIndex])
 
     const handleRunTests = async () => {
         setRunning(true)
         // Simulate test run with delay
         await new Promise(r => setTimeout(r, 1500))
 
-        // Check if user filled in the blanks (simple heuristic)
+        // Check if user has filled in ALL the placeholders
         const filled = !code.includes('/* your code here */')
-        const results = MOCK_TESTS.map((t, i) => ({
+        // All 4 tests pass once the code is complete — no hidden gotchas
+        const results = MOCK_TESTS.map((t) => ({
             ...t,
-            passed: filled ? i < 3 : false,
-            output: filled && i < 3 ? 'OK' : 'FAIL: Missing implementation',
+            passed: filled,
+            output: filled ? 'OK' : 'FAIL: Missing implementation',
         }))
         setTests(results)
 
@@ -66,7 +82,7 @@ export function LessonEditor({ starterCode, language, courseId, lessonId, lesson
         setAllPassed(passed)
 
         if (passed) {
-            toast.success('All tests passed! 🎉 +200 XP earned!', { duration: 4000 })
+            toast.success('All tests passed! 🎉 Click "Mark Complete" to earn XP!', { duration: 4000 })
         }
         setRunning(false)
     }
